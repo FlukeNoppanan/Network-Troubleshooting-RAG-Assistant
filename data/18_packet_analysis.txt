@@ -1,0 +1,17 @@
+Packet analysis และ Wireshark methodology
+ตั้งคำถามก่อน capture เช่น SYN ถึง server หรือไม่, DBD ถูกส่งซ้ำหรือไม่ หรือ packet ขนาดใหญ่ผ่าน tunnel หรือไม่ ระบุจุด capture ที่จะพิสูจน์สมมติฐาน เลือก interface ที่เห็น flow จริงและ capture ทั้งขาเข้า/ขาออกเมื่อทำได้ ควบคุมระยะเวลาและขนาดไฟล์ตามสิทธิ์ เก็บ payload ที่อาจมีข้อมูลส่วนบุคคลอย่างเหมาะสม
+
+Capture filter กับ display filter
+Capture filter จำกัด packet ตั้งแต่บันทึก ส่วน Wireshark display filter คัดสิ่งที่แสดงภายหลัง จึงเรียก syntax สลับกันไม่ได้ ตัวอย่าง tcpdump -ni eth0 host 192.168.10.20 เป็น capture ตาม host โดยเปลี่ยน interface/address ให้ถูก Wireshark ใช้ ip.addr == 192.168.10.20 เป็น display filter การกรองแคบเกินไปอาจไม่เห็น ARP, ICMP หรือ DNS ที่เป็นต้นเหตุ
+
+TCP retransmission Dup ACK และ Out-of-Order
+ใน Wireshark ใช้ tcp.analysis.retransmission, tcp.analysis.duplicate_ack และ tcp.analysis.out_of_order เพื่อค้นอาการ แล้วอ่าน sequence/ACK และเวลาประกอบ เครื่องมือทำ heuristic analysis จึงไม่ถือ label เป็นหลักฐาน loss แน่นอน ตรวจ capture drops และว่าจุดจับเห็นทั้งสองทิศทาง หาก receiver ส่ง Dup ACK รอ sequence ที่ขาด ให้เทียบ capture ต้นทาง/ปลายทางเพื่อหาว่า segment หายระหว่างทางหรือแค่ reorder
+
+Checksum offload และ capture artifacts
+Capture บน host อาจแสดง checksum incorrect เพราะ NIC เติม checksum หลังจุดที่จับ ไม่ได้แปลว่า wire packet เสียจริงเสมอ GRO/LRO หรือ segmentation offload อาจทำให้เห็นขนาด packet ต่างจากบนสาย หากข้อมูลขัดแย้งให้เทียบ capture ที่ peer หรือ SPAN port ตามสิทธิ์ SPAN เองอาจ drop เมื่อ oversubscribed จึงต้องดูข้อจำกัดของจุดจับก่อนสรุป
+
+PMTUD black hole และ asymmetric routing
+หาก packet เล็กผ่านแต่ flow ใหญ่ค้าง ให้หา DF, IP length, retransmission และ ICMP Fragmentation Needed หรือ ICMPv6 Packet Too Big ที่ต้นทางควรเห็น เปรียบเทียบ capture ก่อนและหลัง tunnel หาก request ถึง server แต่ reply หาย ให้ดู return route และ stateful firewall ขากลับอาจผ่านอุปกรณ์อีกตัวที่ไม่มี state จัด timestamps ให้สอดคล้องและระบุจุดที่ packet หายก่อนปรับ MTU/MSS หรือ routing
+
+สรุปผล capture ให้ตรวจซ้ำได้
+บันทึก source/destination, protocol, port, interface, เวลาและ filter พร้อมหมายเลข packet ที่เป็นหลักฐาน แยกสิ่งที่เห็นจริงออกจากสมมติฐาน เช่นเห็น SYN retransmission แต่ยังไม่รู้ว่าหายที่ไหน เปลี่ยนทีละปัจจัยแล้ว capture test เดิมอีกครั้ง ปิดการจับเมื่อได้หลักฐาน ไม่อัปโหลดไฟล์ที่มี credentials หรือข้อมูลลูกค้าไปยังบริการสาธารณะ

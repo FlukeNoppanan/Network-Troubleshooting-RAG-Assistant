@@ -1,0 +1,14 @@
+Network security troubleshooting: แยก policy failure จาก network outage
+การที่ network ถูกปฏิเสธอาจเป็นพฤติกรรมที่ policy ตั้งใจ ไม่ใช่ระบบเสีย เริ่มจากตรวจ source/destination, protocol, port, identity และเวลาทดสอบกับสิทธิ์ที่ได้รับอนุญาต ดู deny log กับ rule counter อย่าแก้ด้วยการ disable security ทั้งหมดหรือ allow any-any เก็บหลักฐานที่ไม่เปิดเผยรหัสผ่านหรือ token
+
+802.1X และ NAC บน access port
+Client ที่ link up แต่เข้า network ไม่ได้อาจยังไม่ผ่าน 802.1X ตรวจ supplicant, authentication method, certificate expiry และ authentication server log ตามสิทธิ์ ตรวจ authorized state ของ switch port กับ VLAN ที่ NAC จัดให้ Quarantine VLAN อาจมีสิทธิ์จำกัดโดยตั้งใจ ถ้า authentication ผ่านแต่บริการไม่ได้ให้ตรวจ policy ของ VLAN และ DHCP อย่าสลับเป็น open access เพื่อข้ามการยืนยันตัวตน
+
+DHCP snooping และ Dynamic ARP Inspection
+DHCP snooping แยก trusted uplink จาก client ports และสร้าง binding table DAI อาจตรวจ ARP เทียบกับ binding เพื่อป้องกัน ARP spoofing หาก client ได้ IP แต่ ARP ถูก drop ให้ดู snooping binding, VLAN ที่เปิด protection และ log ตรวจว่า DHCP server/relay path ผ่าน port ที่กำหนดถูกต้อง Static IP host อาจต้องมี binding/exception ตาม policy อย่าปิด protection ทั้ง VLAN โดยไม่วิเคราะห์
+
+Port security และ err-disabled
+Access port อาจถูกจำกัดจำนวน MAC เมื่อเปลี่ยนเครื่อง, ต่อ IP phone หรือ hypervisor อาจเกิน limit ดู violation counter, learned MAC และ shutdown reason บน platform หากพบ BPDU Guard ให้ตรวจ switch ที่ต่อผิดแทนเปิด port ซ้ำทันที การ recovery ต้องแก้ topology หรือ address policy ก่อนและบันทึกผลกระทบ ไม่ถือว่าทุก err-disabled เกิดจากสายเสีย
+
+TLS certificate และเวลาเครื่อง
+เมื่อ network ถึง server แต่ TLS connection ล้มเหลว ให้ตรวจ hostname ตรงกับ certificate, วันหมดอายุ, trust chain และเวลาของ client/server ไม่ใช่ทุก TLS error เกิดจาก firewall การเปลี่ยน DNS หรือ proxy อาจพาไป server ที่เสนอ certificate คนละชื่อ ตรวจ log โดยไม่ส่ง private key หรือ password ออกนอกระบบ แก้ certificate/เวลา/root trust ตามขั้นตอน ไม่ปิด certificate verification เพื่อให้ผ่าน

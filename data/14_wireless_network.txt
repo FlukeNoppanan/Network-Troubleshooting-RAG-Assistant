@@ -1,0 +1,14 @@
+Wireless troubleshooting: Wi-Fi ต่อได้แต่ช้าหรือหลุด
+เริ่มแยก association, authentication, DHCP และการเข้าถึงบริการ ถ้า SSID ไม่ปรากฏให้ดู AP/radio, band ที่ client รองรับ และการตั้งค่า SSID หากเห็น SSID แต่ต่อไม่ได้ให้ดู authentication/security compatibility และ log หากต่อได้แต่ไม่มี IP ให้ตรวจ VLAN mapping, DHCP scope และ relay ต่อได้แต่ DNS ไม่ทำงานต้องตรวจ DNS แยกจาก radio
+
+Signal strength, SNR และ coverage
+RSSI แสดงกำลังสัญญาณที่รับ ส่วน SNR เทียบสัญญาณกับ noise ค่าสัญญาณต่ำหรือ SNR ไม่ดีสัมพันธ์กับ rate ต่ำและ retries สูง แต่ค่าตัดสินขึ้นกับอุปกรณ์และบริการ ตรวจค่าของ client กับ AP ทั้งสองฝั่ง เพราะ uplink ของ client อาจอ่อนกว่า downlink ทดสอบตำแหน่งเดิมและเวลาที่เทียบกันได้ ไม่ใช้จำนวนขีด Wi-Fi เพียงอย่างเดียวเป็นหลักฐานคุณภาพ
+
+Wi-Fi interference และ channel utilization
+สัญญาณจาก AP อื่น, client จำนวนมาก หรือแหล่ง non-Wi-Fi interference อาจทำให้ channel busy, latency สูงและ loss ดู channel utilization, retries และ noise ถ้า 2.4 GHz แออัดให้ตรวจ channel plan และความกว้าง channel อย่าเพิ่ม channel width เพื่อแก้ throughput โดยไม่ประเมิน interference การใช้ band ที่เหมาะกับ client และระยะทางช่วยได้ แต่ต้องตรวจข้อกำหนดพื้นที่และ policy ก่อนปรับ radio
+
+Roaming และอาการหลุดตอนเคลื่อนที่
+หากหลุดเมื่อเดินระหว่าง AP ให้เทียบ association/roaming log, coverage overlap และ security settings ตรวจว่า SSID เดียวกัน map ไป VLAN และ authentication ที่สอดคล้องกัน Client มีบทบาทเลือก roam จึงไม่สรุปจาก AP ตัวเดียว ตรวจว่ามี DHCP ใหม่หรือ IP เปลี่ยนระหว่าง roam และทดสอบบริการที่ไวต่อการขาดช่วง เช่น voice ภายใต้สภาพเคลื่อนที่จริง
+
+ขั้นตอนตรวจ Wi-Fi ช้าอย่างเป็นระบบ
+เปรียบเทียบ client เดียวกันบนสายกับ wireless ถ้าบนสายดีให้เน้น RF/AP/client driver ถ้าทั้งคู่ช้าให้ตรวจ uplink, gateway และบริการ ทดสอบ ping gateway กับ application พร้อมดู retries และ RSSI แยกความเร็ว link rate จาก throughput จริง บน Linux ใช้ iw dev <interface> link เมื่อมีเครื่องมือและสิทธิ์ บน Windows ใช้ netsh wlan show interfaces เก็บผลก่อน/หลัง เปลี่ยนทีละค่าและไม่เปิดเครือข่ายไร้รหัสผ่านเพื่อทดสอบ

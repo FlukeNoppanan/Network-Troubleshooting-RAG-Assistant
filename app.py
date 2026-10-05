@@ -12,12 +12,10 @@ os.environ.setdefault("HF_HOME", str(Path(__file__).resolve().parent / ".cache" 
 import faiss
 import numpy as np
 import streamlit as st
-from google import genai
-from google.genai import types
 from pythainlp.util import normalize
 from sentence_transformers import SentenceTransformer
 
-GEMINI_MODEL = "gemini-3.1-flash-lite"
+GROQ_MODEL = "openai/gpt-oss-120b"
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 RETRIEVAL_THRESHOLD = 0.38
 TOP_K = 5
@@ -200,23 +198,100 @@ def generate_answer(question, sources, client):
     sources = relevant_chunks(sources)
     if not sources:
         return NOT_FOUND, []
-    response = client.models.generate_content(model=GEMINI_MODEL,
-        contents=build_prompt(question, sources),
-        config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT,
-            temperature=0.1, response_mime_type="application/json",
-            response_schema={"type": "OBJECT", "properties": {
-                "answer": {"type": "STRING"},
-                "citations": {"type": "ARRAY", "items": {"type": "STRING"}}},
-                "required": ["answer", "citations"]}, max_output_tokens=4096))
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": build_prompt(question, sources)},
+        ],
+        temperature=0.1,
+        response_format={"type": "json_object"},
+        max_tokens=4096,
+    )
     try:
-        return validate_answer(json.loads(response.text or "{}"), sources)
-    except (json.JSONDecodeError, TypeError) as exc:
+        content = response.choices[0].message.content or "{}"
+        return validate_answer(json.loads(content), sources)
+    except (json.JSONDecodeError, TypeError, IndexError, AttributeError) as exc:
         raise AnswerFormatError("Invalid response JSON") from exc
 
 
+def create_groq_client(api_key):
+    # Lazy import keeps local retrieval/UI tests independent of API credentials.
+    from groq import Groq
+    return Groq(api_key=api_key)
+
+
+EXAMPLE_QUESTIONS = [
+    "OSPF Neighbor ค้างที่ EXSTART เกิดจากอะไร?",
+    "Client ได้ IP แต่เข้าเว็บไซต์ด้วย Domain ไม่ได้ ควรตรวจสอบอะไร?",
+    "ทำไมเครื่องใน VLAN เดียวกันถึง Ping หากันไม่ได้?",
+    "VPN เชื่อมต่อได้แต่เข้า Network ภายในไม่ได้ เกิดจากอะไร?",
+]
+
+
+def queue_example(question):
+    st.session_state["pending_question"] = question
+
+
+def render_header():
+    # CSS targets only classes owned by this app; no hidden Streamlit controls.
+    st.html("""<style>
+      .na-header {padding: 1.6rem 0 1.25rem; border-bottom: 1px solid #dbe3ed;
+                  margin-bottom: 1.5rem;}
+      .na-eyebrow {font-size: .75rem; letter-spacing: .12em; color: #52718b;
+                    text-transform: uppercase; font-weight: 600;}
+      .na-header h1 {margin: .35rem 0; font-size: clamp(2rem, 5vw, 2.8rem);
+                     letter-spacing: -.04em; color: #142d46;}
+      .na-subtitle {font-size: 1.15rem; color: #38546e; margin: .25rem 0 .75rem;}
+      .na-description {color: #5b6c7d; line-height: 1.65; max-width: 42rem;}
+      .na-tags {display:flex; gap:.4rem; flex-wrap:wrap; margin-top:1rem;}
+      .na-tag {padding:.25rem .65rem; border:1px solid #dbe3ed; border-radius:6px;
+               color:#38546e; background:#f5f8fb; font-size:.78rem;}
+      @media(max-width:600px) {.na-header {padding-top:.75rem;} }
+    </style>
+    <header class="na-header">
+      <div class="na-eyebrow">Document-grounded network support</div>
+      <h1>NetAssist RAG</h1>
+      <p class="na-subtitle">Network Troubleshooting Assistant</p>
+      <p class="na-description">Troubleshoot network issues using answers grounded in a curated technical knowledge base.</p>
+      <div class="na-tags"><span class="na-tag">Routing</span><span class="na-tag">Switching</span>
+      <span class="na-tag">Firewall</span><span class="na-tag">VPN</span>
+      <span class="na-tag">TCP/IP</span><span class="na-tag">Wireless</span></div>
+    </header>""")
+
+
+def render_welcome():
+    with st.container(border=True):
+        st.subheader("สวัสดีครับ ผมคือ NetAssist")
+        st.write("ผู้ช่วยวิเคราะห์ปัญหาเครือข่ายจากคลังความรู้ที่ตรวจสอบได้ "
+                 "ถามภาษาไทยหรืออังกฤษ และตรวจเอกสารอ้างอิงประกอบคำตอบได้")
+        st.caption("เริ่มจากคำถามตัวอย่าง / Choose an incident to investigate")
+        for number, question in enumerate(EXAMPLE_QUESTIONS):
+            st.button(question, key=f"example_{number}", use_container_width=True,
+                      on_click=queue_example, args=(question,))
+    st.caption("คำตอบใช้เฉพาะข้อมูลในคลัง หากหลักฐานไม่เพียงพอระบบจะปฏิเสธคำถาม")
+
+
 def render_message(message):
-    with st.chat_message(message["role"]):
+    with st.chat_message(message["role"], avatar="user" if message["role"] == "user" else "assistant"):
         st.markdown(message["content"])
+        if message["content"] == NOT_FOUND:
+            st.caption("ลองถามเกี่ยวกับ Routing, Switching, TCP/IP, Firewall, VPN "
+                       "หรือ Network Troubleshooting")
+        if message.get("sources"):
+            st.caption(f"Grounded in {len(message['sources'])} retrieved evidence "
+                       "section(s) · ตรวจสอบหลักฐานประกอบคำตอบ")
+            with st.expander("เอกสารอ้างอิง / Retrieved Sources"):
+                for source in message["sources"]:
+                    with st.container(border=True):
+                        st.markdown(f"**[{source['source_id']}] {source['source']}**")
+                        st.caption(f"Chunk {source['chunk_number']} · "
+                                   f"Cosine similarity {source['score']:.3f} (ไม่ใช่ probability)")
+                        # Preview, with complete evidence available on demand.
+                        text = source["text"]
+                        st.write(text[:180] + ("…" if len(text) > 180 else ""))
+                        with st.expander("อ่านข้อความอ้างอิงทั้งหมด / Full evidence"):
+                            st.text(text)
         if st.session_state.get("retrieval_debug") and message.get("retrieval"):
             with st.expander("Retrieval Debug"):
                 st.caption(message.get("status", ""))
@@ -224,26 +299,21 @@ def render_message(message):
                                "cosine": round(r["score"], 4),
                                "passes_threshold": r["score"] >= RETRIEVAL_THRESHOLD}
                               for r in message["retrieval"]], hide_index=True)
-        if message.get("sources"):
-            with st.expander("เอกสารอ้างอิง / Retrieved Sources"):
-                for source in message["sources"]:
-                    st.markdown(f"**[{source['source_id']}] {source['source']}** · "
-                        f"chunk {source['chunk_number']} · cosine {source['score']:.3f}")
-                    st.text(source["text"])
 
 
 def main():
-    st.set_page_config(page_title="Network Troubleshooting RAG Assistant", page_icon="🌐")
-    st.title("Network Troubleshooting RAG Assistant")
-    st.caption("AI-powered troubleshooting from a curated networking knowledge base")
+    st.set_page_config(page_title="NetAssist RAG | Network Troubleshooting",
+                       page_icon="🌐", layout="centered")
+    render_header()
     st.session_state.setdefault("messages", [])
+    pending_question = st.session_state.pop("pending_question", None)
     try:
-        api_key = st.secrets["GEMINI_API_KEY"]
-        configured = bool(api_key and api_key != "your_gemini_api_key_here")
+        api_key = st.secrets["GROQ_API_KEY"]
+        configured = bool(api_key and api_key != "your_groq_api_key_here")
     except (KeyError, FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
         api_key, configured = None, False
     if not configured:
-        st.warning('กรุณาตั้งค่า GEMINI_API_KEY ใน Streamlit Secrets '
+        st.warning('กรุณาตั้งค่า GROQ_API_KEY ใน Streamlit Secrets '
                    '(.streamlit/secrets.toml หรือ Settings → Secrets บน Community Cloud)')
     try:
         with st.spinner("กำลังเตรียมคลังความรู้ / Loading knowledge base…"):
@@ -253,22 +323,44 @@ def main():
                  "และการเชื่อมต่อ Hugging Face แล้วลองใหม่")
         st.stop()
     with st.sidebar:
-        st.header("Knowledge Base")
-        st.metric("Documents", len(documents))
-        st.metric("Chunks", len(chunks))
-        st.subheader("RAG Configuration")
-        st.write(f"Embedding: {EMBEDDING_MODEL}")
-        st.write("Vector database: FAISS · IndexFlatIP · cosine")
-        st.write(f"LLM: Gemini · {GEMINI_MODEL}")
-        st.write(f"Top-K: {TOP_K} · Retrieval threshold: {RETRIEVAL_THRESHOLD}")
-        st.caption("ตอบจากเอกสารเท่านั้น / Answers grounded in documents")
-        st.checkbox("Show Retrieval Debug", key="retrieval_debug")
-        if st.button("Clear Chat", use_container_width=True):
+        st.title("NetAssist RAG")
+        st.caption("Network Knowledge Assistant")
+        st.markdown("**● System Ready**" if configured else "**● Knowledge Base Ready**")
+        if not configured:
+            st.caption("Groq API setup required")
+        st.divider()
+        st.subheader("Knowledge Base")
+        left, right = st.columns(2)
+        left.metric("Documents", len(documents))
+        right.metric("Chunks", len(chunks))
+        st.caption(f"Knowledge Coverage · {len(documents)} technical topics")
+        st.write("Routing · Switching · Security · VPN · Wireless · IPv6 · Packet Analysis")
+        st.divider()
+        with st.expander("Technology / System Information"):
+            st.write("Multilingual sentence embedding")
+            st.write("FAISS vector search")
+            st.write(f"Groq · {GROQ_MODEL}")
+        with st.expander("Advanced RAG Details"):
+            st.caption(f"Embedding: {EMBEDDING_MODEL}")
+            st.caption("FAISS IndexFlatIP · normalized cosine similarity")
+            st.caption(f"Top-K: {TOP_K} · Threshold: {RETRIEVAL_THRESHOLD}")
+            st.checkbox("Show Retrieval Debug", key="retrieval_debug")
+        if st.button("ล้างบทสนทนา / Clear Chat", key="clear_chat", use_container_width=True):
             st.session_state.messages = []
+            st.session_state.pop("pending_question", None)
             st.rerun()
+        with st.expander("About NetAssist"):
+            st.write("NetAssist RAG uses Retrieval-Augmented Generation (RAG). "
+                     "Answers are generated only from the local curated networking knowledge base.")
+            st.caption("ตรวจสอบหลักฐานและความเหมาะสมกับระบบจริงก่อนเปลี่ยน configuration")
+    if (not st.session_state.messages and not pending_question
+            and not st.session_state.get("chat_question")):
+        render_welcome()
     for message in st.session_state.messages:
         render_message(message)
-    question = st.chat_input("ถามเกี่ยวกับเครือข่าย / Ask a networking question", max_chars=2000)
+    submitted = st.chat_input("อธิบายอาการเครือข่าย / Describe your network incident",
+                              max_chars=2000, key="chat_question")
+    question = submitted or pending_question
     if question and question.strip():
         user = {"role": "user", "content": question}
         st.session_state.messages.append(user)
@@ -281,16 +373,15 @@ def main():
                     answer, sources = NOT_FOUND, []
                     status = "retrieval_below_threshold"
                 elif not configured:
-                    answer, sources = "กรุณาตั้งค่า GEMINI_API_KEY ใน Streamlit Secrets ก่อนสร้างคำตอบ", []
+                    answer, sources = "กรุณาตั้งค่า GROQ_API_KEY ใน Streamlit Secrets ก่อนสร้างคำตอบจาก Groq", []
                     status = "missing_secrets"
                 else:
                     # The API key is read ONLY from Streamlit Secrets.
-                    with genai.Client(api_key=st.secrets["GEMINI_API_KEY"],
-                                      http_options=types.HttpOptions(timeout=60000)) as client:
+                    with create_groq_client(st.secrets["GROQ_API_KEY"]) as client:
                         answer, sources = generate_answer(question, results, client)
                     status = "model_insufficient_evidence" if answer == NOT_FOUND else "grounded_answer"
             except AnswerFormatError:
-                answer, sources = ("รูปแบบคำตอบหรือเอกสารอ้างอิงจาก Gemini ไม่ถูกต้อง กรุณาลองใหม่ / "
+                answer, sources = ("รูปแบบคำตอบหรือเอกสารอ้างอิงจาก Groq ไม่ถูกต้อง กรุณาลองใหม่ / "
                                    "Invalid answer or citation format. Please retry.", [])
                 status = "invalid_model_output"
             except Exception:

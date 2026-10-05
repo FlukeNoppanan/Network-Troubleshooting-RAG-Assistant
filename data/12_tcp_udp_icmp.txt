@@ -1,0 +1,14 @@
+TCP UDP ICMP: แยก Destination host unreachable กับ Request timed out
+Destination host unreachable อาจส่งโดยเครื่องต้นทางที่หา next-hop ไม่ได้หรือ router ที่ไม่มีเส้นทาง ตรวจ IP ผู้ส่ง ICMP และ code จาก packet capture ก่อนสรุป Request timed out หมายถึงยังไม่ได้รับ reply ในเวลาที่กำหนด อาจเกิดจาก loss, filtering, server ไม่ตอบ หรือ return route ผิด การ ping ไม่ผ่านอย่างเดียวไม่ได้ยืนยันว่า host ปิดอยู่
+
+TCP connection setup และ RST
+TCP เริ่ม SYN, SYN-ACK, ACK ตรวจว่า SYN ออก client และถึง server หรือไม่ หาก server ตอบ RST ให้ตรวจ listening service และ host firewall พร้อมระบุผู้ส่ง RST เพราะ middlebox อาจส่งได้ หาก SYN ถูกส่งซ้ำแต่ไม่มี reply ให้ตรวจเส้นทางทั้งสองทิศทางกับ ACL หาก handshake สำเร็จแต่ application ค้าง ให้ดู payload, receiver window, server log และ MTU ไม่สรุปว่าการเชื่อมต่อปกติเพียงเพราะจับ ACK ได้
+
+TCP retransmission Dup ACK และ Out-of-Order
+Retransmission คือการส่ง sequence range ซ้ำเพราะยังไม่เห็น acknowledgement ตามกลไก TCP Duplicate ACK แจ้งว่า receiver ยังรอ sequence ก่อนหน้า ส่วน Out-of-Order หมายถึง capture เห็น segment มาไม่ตามลำดับ อาจเกิดจากเส้นทางหลายทางหรือ capture placement ไม่ใช่ทุก Dup ACK จะหมายถึงสายเสีย ต้องจับทั้งสองปลาย เทียบ sequence และตรวจ capture drops ก่อนสรุป packet loss จริง
+
+UDP และการตรวจบริการ
+UDP ไม่มี handshake และไม่รับประกัน delivery จึงไม่ใช้การไม่มี SYN-ACK เป็นเกณฑ์ดู UDP failure ตรวจ request กับ response ของ application เช่น DNS แยก server listening UDP socket, route และ firewall state UDP traffic ที่ไม่มี response อาจเป็นบริการที่ออกแบบให้ส่งทางเดียว อย่าใช้ TCP port test เพื่อยืนยันว่า UDP port เปิด บน Linux ใช้ ss -lnup และ capture ตาม IP/protocol ของบริการ
+
+ICMP, latency และ PMTUD
+ICMP Echo RTT รวมเวลาขาไปและกลับ ไม่ระบุว่าความหน่วงอยู่ที่ใด Router อาจ rate-limit ICMP ให้เทียบ latency ของ application ด้วย ICMP Time Exceeded เกี่ยวข้องกับ TTL และ traceroute ICMPv4 Fragmentation Needed ช่วย Path MTU Discovery หาก packet เล็กผ่านแต่ TCP transfer ใหญ่ค้าง ให้ตรวจ DF, path MTU และ ICMP ที่ถูก block ใช้ผลหลายครั้งกับเวลาที่ชัดเจนก่อนเปลี่ยนค่า

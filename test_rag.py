@@ -1,10 +1,17 @@
-"""Integration tests with real multilingual embeddings; no Gemini requests."""
+"""Integration tests with real multilingual embeddings; no Groq API requests."""
 import unittest
 from unittest.mock import Mock, patch
+from types import SimpleNamespace
 import pandas as pd
 import numpy as np
 from streamlit.testing.v1 import AppTest
 import app
+
+
+def set_groq_response(client, content):
+    client.chat.completions.create.return_value = SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content=content))]
+    )
 
 
 class RagTests(unittest.TestCase):
@@ -17,8 +24,8 @@ class RagTests(unittest.TestCase):
         cls.index, cls.embeddings = app.build_faiss_index(cls.chunks, cls.model)
 
     def test_documents_and_chunking(self):
-        self.assertGreaterEqual(len(self.docs), 10)
-        self.assertGreater(sum(len(d['text']) for d in self.docs), 15000)
+        self.assertGreaterEqual(len(self.docs), 18)
+        self.assertGreater(sum(len(d['text']) for d in self.docs), 35000)
         self.assertTrue(all(sum(c['source'] == d['source'] for c in self.chunks) > 1 for d in self.docs))
         self.assertTrue(all(0 < len(c['text']) <= app.CHUNK_SIZE for c in self.chunks))
         chunks = app.chunk_documents([{'source': 'x', 'text': 'x' * 2500}])
@@ -47,8 +54,8 @@ class RagTests(unittest.TestCase):
 
     def test_retrieval_cases(self):
         cases = pd.read_csv(app.DATA_DIR.parent / 'test_questions.csv').fillna('')
-        self.assertGreaterEqual(len(cases), 12)
-        self.assertGreaterEqual(sum(cases.expected_answer_type == 'NOT_FOUND'), 2)
+        self.assertGreaterEqual(len(cases), 20)
+        self.assertGreaterEqual(sum(cases.expected_answer_type == 'NOT_FOUND'), 3)
         for row in cases.itertuples():
             with self.subTest(question=row.question):
                 results = app.retrieve_chunks(row.question, self.model, self.index, self.chunks)
@@ -58,7 +65,7 @@ class RagTests(unittest.TestCase):
                     self.assertLess(best, app.RETRIEVAL_THRESHOLD)
                     client = Mock()
                     self.assertEqual(app.generate_answer(row.question, results, client), (app.NOT_FOUND, []))
-                    client.models.generate_content.assert_not_called()
+                    client.chat.completions.create.assert_not_called()
                 else:
                     accepted = app.relevant_chunks(results)
                     self.assertTrue(accepted)
@@ -85,43 +92,69 @@ class RagTests(unittest.TestCase):
         self.assertTrue(any('MTU mismatch' in r['text'] and 'master/slave' in r['text']
                             for r in app.relevant_chunks(sources)))
         client = Mock()
-        client.models.generate_content.return_value.text = (
+        set_groq_response(client,
             '{"answer":"ตรวจ MTU mismatch และ DBD master/slave negotiation", "citations":["S1"]}')
         answer, cited = app.generate_answer('OSPF EXSTART', sources, client)
         self.assertNotEqual(answer, app.NOT_FOUND)
         self.assertEqual(cited[0]['source'], '05_ospf.txt')
-        client.models.generate_content.assert_called_once()
-        client.models.generate_content.return_value.text = 'not-json'
+        client.chat.completions.create.assert_called_once()
+        request = client.chat.completions.create.call_args.kwargs
+        self.assertEqual(request['model'], app.GROQ_MODEL)
+        self.assertEqual(request['messages'][0]['role'], 'system')
+        self.assertIn('ONLY from the provided retrieved context', request['messages'][0]['content'])
+        self.assertEqual(request['response_format'], {'type': 'json_object'})
+        set_groq_response(client, 'not-json')
         with self.assertRaises(app.AnswerFormatError):
             app.generate_answer('OSPF EXSTART', sources, client)
 
     def test_ui_grounded_ospf_with_structured_citations(self):
         at = AppTest.from_file(str(app.DATA_DIR.parent / 'app.py'))
-        at.secrets['GEMINI_API_KEY'] = 'test-only-placeholder'
+        at.secrets['GROQ_API_KEY'] = 'test-only-groq-placeholder'
         at.run(timeout=180)
         client = Mock()
-        client.models.generate_content.return_value.text = (
+        set_groq_response(client,
             '{"answer":"ตรวจ MTU mismatch และ master/slave negotiation", "citations":["S2"]}')
         manager = Mock()
         manager.__enter__ = Mock(return_value=client)
         manager.__exit__ = Mock(return_value=False)
-        with patch.object(app.genai, 'Client', return_value=manager):
+        groq_module = SimpleNamespace(Groq=Mock(return_value=manager))
+        with patch.dict('sys.modules', {'groq': groq_module}):
             at.chat_input[0].set_value('OSPF Neighbor ค้างอยู่ที่ EXSTART เกิดจากอะไร?').run(timeout=30)
+        groq_module.Groq.assert_called_once_with(api_key='test-only-groq-placeholder')
         self.assertFalse(at.exception)
         response = at.session_state['messages'][-1]
         self.assertEqual(response['status'], 'grounded_answer')
+        self.assertFalse(any(b.key and b.key.startswith('example_') for b in at.button))
         self.assertIn('[S2]', response['content'])
         self.assertEqual(response['sources'][0]['source'], '05_ospf.txt')
         self.assertIn('MTU mismatch', response['sources'][0]['text'])
         self.assertTrue(any(e.label == 'เอกสารอ้างอิง / Retrieved Sources' for e in at.expander))
         at.checkbox[0].check().run()
         self.assertTrue(any(e.label == 'Retrieval Debug' for e in at.expander))
-        client.models.generate_content.assert_called_once()
+        client.chat.completions.create.assert_called_once()
+
+    def test_ui_welcome_examples(self):
+        at = AppTest.from_file(str(app.DATA_DIR.parent / 'app.py'))
+        at.secrets['GROQ_API_KEY'] = 'your_groq_api_key_here'
+        at.run(timeout=180)
+        self.assertFalse(at.exception)
+        self.assertEqual(len([b for b in at.button if b.key and b.key.startswith('example_')]), 4)
+        self.assertTrue(any(e.label == 'Advanced RAG Details' for e in at.expander))
+        at.button(key='example_0').click().run(timeout=30)
+        self.assertFalse(at.exception)
+        self.assertEqual(at.session_state['messages'][0]['content'], app.EXAMPLE_QUESTIONS[0])
+        self.assertEqual(at.session_state['messages'][-1]['status'], 'missing_secrets')
+        self.assertEqual(len(at.session_state['messages']), 2)
+        at.run()
+        self.assertEqual(len(at.session_state['messages']), 2)
+        at.button(key='clear_chat').click().run()
+        self.assertEqual(at.session_state['messages'], [])
+        self.assertTrue(at.button(key='example_0'))
 
     def test_ui_missing_secrets_and_chat(self):
         at = AppTest.from_file(str(app.DATA_DIR.parent / 'app.py'))
         # Isolate missing-key UI test from the developer's real configured secret.
-        at.secrets['GEMINI_API_KEY'] = 'your_gemini_api_key_here'
+        at.secrets['GROQ_API_KEY'] = 'your_groq_api_key_here'
         at.run(timeout=180)
         self.assertFalse(at.exception)
         self.assertTrue(at.warning)
@@ -132,7 +165,7 @@ class RagTests(unittest.TestCase):
         self.assertEqual(at.session_state['messages'][-1]['sources'], [])
         at.run()
         self.assertEqual(len(at.session_state['messages']), 2)
-        at.button[0].click().run()
+        at.button(key='clear_chat').click().run()
         self.assertEqual(at.session_state['messages'], [])
 
 

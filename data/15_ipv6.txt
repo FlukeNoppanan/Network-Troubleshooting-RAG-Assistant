@@ -1,0 +1,14 @@
+IPv6 fundamentals และ connectivity troubleshooting
+IPv6 มี address 128 bits และใช้ prefix length เช่น /64 บน LAN โดยทั่วไป แสดงเลข hexadecimal คั่นด้วย colon และย่อศูนย์ด้วย :: ได้ครั้งเดียว Link-local ใน fe80::/10 ใช้สื่อสารบนลิงก์ ส่วน global address ใช้ routing ข้ามเครือข่าย การมี IPv4 ใช้งานได้ไม่ยืนยันว่า IPv6 route หรือ DNS AAAA ทำงาน
+
+Neighbor Discovery และ ICMPv6
+IPv6 ไม่ใช้ ARP แต่ใช้ Neighbor Discovery ผ่าน ICMPv6 เช่น Neighbor Solicitation และ Neighbor Advertisement เพื่อค้น next-hop และตรวจ reachability Router Solicitation/Advertisement ช่วยค้น router และข้อมูล prefix อย่า block ICMPv6 ทั้งหมดเพราะกระทบ ND และ Path MTU Discovery ตรวจ ip -6 neigh บน Linux หรือ IPv6 neighbor table ตามระบบ ถ้า entry incomplete ให้ตรวจ VLAN/link และ ICMPv6 filtering
+
+SLAAC, DHCPv6 และ default route
+SLAAC ใช้ข้อมูล prefix จาก Router Advertisement เพื่อสร้าง address DHCPv6 อาจแจก address หรือข้อมูลอื่นตามการออกแบบ แต่ default router โดยปกติเรียนจาก RA ไม่ใช่ option gateway แบบ DHCPv4 ตรวจ RA flags, prefix lifetime และ default route ด้วย ip -6 addr กับ ip -6 route หากมี address แต่ไม่มี route ให้ตรวจ RA และ router interface ไม่แก้ด้วยการตั้ง IPv4 gateway ให้ IPv6
+
+Dual stack และ DNS AAAA
+ถ้าบางเว็บไซต์เปิดช้าหรือไม่ได้ แต่ IPv4 path ปกติ ให้ตรวจ DNS AAAA และ route IPv6 ของ client ทดสอบ ping -6 <destination> และบริการผ่าน IPv6 เมื่อรองรับ เปรียบเทียบกับ IPv4 โดยไม่ปิด IPv6 ทั้งระบบเป็นขั้นแรก ตรวจ firewall rule ที่ครอบ IPv6 แยกจาก IPv4 และ return route ของ global prefix
+
+IPv6 MTU และ Duplicate Address Detection
+IPv6 routers ไม่ fragment transit packets ผู้ส่งใช้ ICMPv6 Packet Too Big เพื่อปรับขนาด ถ้า packet เล็กผ่านแต่ packet ใหญ่ค้างให้ตรวจ tunnel MTU และ filtering ของข้อความนี้ Duplicate Address Detection ตรวจว่า address ซ้ำก่อนใช้งาน หาก DAD ล้มเหลวให้เก็บ ND capture และตรวจ address plan/host ที่ประกาศ address ซ้ำ บน link-local ที่มีหลาย interface การทดสอบอาจต้องระบุ zone/interface ให้ถูกต้องตามเครื่องมือ

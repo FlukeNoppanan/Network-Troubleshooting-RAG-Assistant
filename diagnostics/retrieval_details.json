@@ -1,10 +1,10 @@
 {
   "stats": {
-    "documents": 10,
-    "raw_characters": 22567,
-    "cleaned_characters": 22557,
-    "chunks": 63,
-    "vectors": 63,
+    "documents": 18,
+    "raw_characters": 38996,
+    "cleaned_characters": 38978,
+    "chunks": 105,
+    "vectors": 105,
     "dimensions": 384,
     "max_chunk_tokens": 128,
     "model_token_limit": 128,

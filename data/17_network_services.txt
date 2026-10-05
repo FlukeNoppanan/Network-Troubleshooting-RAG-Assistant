@@ -1,0 +1,14 @@
+Network services troubleshooting: NTP SSH HTTPS และ syslog
+แยกการเข้าถึง host จากการเข้าถึง service Ping ผ่านไม่ได้หมายความว่า application port เปิดอยู่ ระบุ protocol และ port ที่ถูก configure จริง บน Linux ตรวจ ss -lntup หรือ ss -lnup และ service log หาก process ฟังเฉพาะ 127.0.0.1 จะเข้าจากเครื่องอื่นไม่ได้ ตรวจ bind address ก่อนเปิด firewall เพิ่ม
+
+NTP และ clock synchronization
+NTP มักใช้ UDP 123 การที่เวลาเครื่องคลาดเคลื่อนอาจทำให้ certificate validation หรือ authentication มีปัญหา ตรวจ configured NTP server, sync status, offset และ network path บนระบบที่ใช้ chrony ตรวจ chronyc tracking และ chronyc sources; คำสั่งนี้ใช้เมื่อมี chrony เท่านั้น DNS ของ server, ACL และ return traffic ต้องทำงาน การ ping ผ่านไม่ยืนยัน NTP sync และการเปลี่ยนเวลาเครื่องขณะบริการทำงานอาจกระทบ log/งานที่กำหนดเวลา
+
+SSH connection refused กับ timeout
+SSH ปกติ TCP 22 แต่อาจตั้ง port อื่น Connection refused อาจเกิดจากไม่มี listener หรือการปฏิเสธแบบส่ง RST ต้องดู capture ระบุผู้ส่ง ส่วน timeout ให้ตรวจ route, firewall และ server availability ถ้า TCP handshake ผ่านแต่ authentication ไม่ผ่านให้ดู user/key/policy กับ server log ไม่เกี่ยวกับการเปิด port เพิ่ม ห้ามเผยแพร่ private key หรือรหัสผ่านเพื่อ debug
+
+HTTP HTTPS และ proxy
+HTTP มัก TCP 80 และ HTTPS มัก TCP 443 ตรวจ DNS, TCP connection, TLS handshake แล้ว application response แยก HTTP 403/404/500 จาก network timeout เพราะมี server ตอบแล้ว Proxy หรือ load balancer อาจมี backend health fail แม้ frontend port เปิด ตรวจ backend listener, route และ health-check path ที่ configure ไว้ curl -I https://example.com ใช้ดู response headers เมื่อปลายทางได้รับอนุญาต อย่าใช้ -k เพื่อตัด TLS verification เป็นทางแก้ถาวร
+
+Syslog และ SNMP สำหรับหลักฐาน incident
+Syslog อาจใช้ UDP 514, TCP 514 หรือ TLS 6514 ตาม config หาก log ไม่ถึง collector ให้ตรวจ protocol, destination, source interface และ ACL การส่ง UDP ไม่รับประกัน delivery SNMP polling มัก UDP 161 และ traps มัก UDP 162 ตรวจ version และ authentication ตาม policy ไม่เผย community string ใช้ timestamps ที่ sync กันเมื่อเทียบ log หลายอุปกรณ์ ตรวจทั้ง sender counter และ collector ingestion

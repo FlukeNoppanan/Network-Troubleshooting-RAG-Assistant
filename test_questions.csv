@@ -17,3 +17,12 @@ id,question,expected_answer_type,expected_source,notes
 16,Client ไม่ได้รับ IP Address จาก DHCP ควรตรวจสอบอะไร?,GROUNDED,06_dhcp_dns.txt,Exact DHCP regression
 17,VLAN เดียวกันแต่เครื่องสองเครื่องสื่อสารกันไม่ได้ ควรตรวจสอบอะไร?,GROUNDED,03_vlan_trunking.txt,Same VLAN regression
 18,วิธี Deploy Kubernetes ด้วย Helm ทำยังไง?,NOT_FOUND,,Thai out-of-domain regression
+19,Wi-Fi ช้าและหลุดบ่อย ควรตรวจ RSSI SNR และ interference อย่างไร?,GROUNDED,14_wireless_network.txt,Wireless RF troubleshooting
+20,IPv6 Neighbor Discovery ไม่สำเร็จและไม่มี default route ควรตรวจอะไร?,GROUNDED,15_ipv6.txt,ND ICMPv6 and RA
+21,MAC address table เรียน MAC สลับ port และ ARP entry เปลี่ยน ควรตรวจอะไร?,GROUNDED,13_arp_mac_table.txt,MAC flapping and duplicate IP
+22,How do I troubleshoot Ethernet speed duplex mismatch and CRC errors?,GROUNDED,11_ethernet_switching.txt,Physical counters
+23,Wireshark แสดง TCP Out-of-Order และ checksum incorrect เป็น packet loss จริงไหม?,GROUNDED,18_packet_analysis.txt,Capture artifacts
+24,NTP ไม่ sync และ SSH connection refused ต้องตรวจ service อะไร?,GROUNDED,17_network_services.txt,Services versus network
+25,802.1X ผ่านแต่ Dynamic ARP Inspection drop ARP ควรตรวจอะไร?,GROUNDED,16_network_security.txt,NAC snooping binding
+26,Mobile Legends ควรเลือกฮีโร่ตัวไหนและออกไอเทมอย่างไร?,NOT_FOUND,,Gaming outside curated network domain
+27,Destination host unreachable ต่างจาก Request timed out อย่างไร และควรตรวจ ICMP ผู้ส่งอย่างไร?,GROUNDED,12_tcp_udp_icmp.txt,ICMP errors and verification

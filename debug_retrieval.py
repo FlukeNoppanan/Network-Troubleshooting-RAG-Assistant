@@ -1,4 +1,4 @@
-"""No Gemini calls. Reproducible retrieval scores and calibration artifacts."""
+"""No Groq API calls. Reproducible retrieval scores and calibration artifacts."""
 import json
 from pathlib import Path
 import numpy as np

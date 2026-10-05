@@ -1,4 +1,4 @@
-# Network Troubleshooting RAG Assistant
+# NetAssist RAG — Network Troubleshooting Assistant
 
 แชตบอตภาษาไทย/อังกฤษสำหรับเรียนรู้และวิเคราะห์ปัญหาเครือข่ายจากคลังเอกสารที่จัดเตรียมไว้ ช่วยลดการค้นหาข้ามหลายหัวข้อและแสดงหลักฐานประกอบคำตอบ เหมาะกับงานมหาวิทยาลัยที่ต้องสาธิต RAG โดยตรง ไม่ควรนำคำแนะนำไปเปลี่ยนระบบจริงโดยไม่ตรวจ platform และสิทธิ์ดำเนินการ
 
@@ -14,7 +14,7 @@ flowchart TD
   D --> F[Top 5 chunks and cosine scores]
   F --> G{Score passes threshold?}
   G -->|No| H[ไม่พบข้อมูลในคลังเอกสาร]
-  G -->|Yes| I[Gemini with retrieved context only]
+  G -->|Yes| I[Groq with retrieved context only]
   I --> J[Validate answer and source IDs]
   J --> K[Streamlit chat with citations]
 ```
@@ -26,18 +26,34 @@ flowchart TD
 5. `build_faiss_index()` normalize embedding และใช้ `faiss.IndexFlatIP` ทำ inner product ซึ่งเท่ากับ cosine similarity เมื่อเวกเตอร์มีความยาวหนึ่ง
 6. cache ของคลังความรู้เก็บ index และ chunks โดย hash เนื้อหาเอกสาร เมื่อไฟล์หรือรุ่น pipeline เปลี่ยนจะสร้างใหม่ ไม่ embed ทุกครั้งที่ Streamlit rerun
 7. คำถามถูก embed และค้นหา Top-K = 5 แล้วกรองแต่ละ chunk ด้วย `RETRIEVAL_THRESHOLD` ก่อนส่งให้ LLM
-8. Gemini ได้เฉพาะคำถามปัจจุบันและ retrieved context ประวัติแชตแสดงใน UI และคงอยู่ใน session แต่ไม่ส่งเป็นหลักฐานให้โมเดล คำถามต่อเนื่องควรระบุหัวข้อให้ครบ
+8. Groq ได้เฉพาะคำถามปัจจุบันและ retrieved context ประวัติแชตแสดงใน UI และคงอยู่ใน session แต่ไม่ส่งเป็นหลักฐานให้โมเดล คำถามต่อเนื่องควรระบุหัวข้อให้ครบ
 9. ตรวจ JSON และ citation ให้เป็น source ID ที่ถูก retrieve จริง ก่อนแสดงข้อความพร้อมส่วนขยายอ้างอิง
 
 ## Threshold และการปฏิเสธคำถาม
 
-ค่าที่ปรับจากชุดทดสอบ `RETRIEVAL_THRESHOLD = 0.38` อยู่ใกล้ต้น `app.py` หากไม่มี chunk ผ่าน จะตอบ **ไม่พบข้อมูลในคลังเอกสาร** ทันทีโดยไม่เรียก API และไม่แสดงแหล่งข้อมูลที่ไม่เกี่ยวข้อง หาก context ไม่พอ Gemini ถูกสั่งให้ตอบข้อความเดียวกัน หาก structured citation ถูกต้องแต่ไม่มี inline tag แอปจะเติม tag จาก ID ที่ตรวจแล้ว หาก JSON/citation ผิด จะแสดงข้อผิดพลาดรูปแบบคำตอบแยกจาก NOT_FOUND ไม่แสดงว่าเอกสารไม่มีข้อมูล การตรวจ citation ยืนยันว่าแหล่งอ้างอิงมีอยู่ แต่ไม่ได้พิสูจน์ทุกข้อเท็จจริงของโมเดล ต้องตรวจคุณภาพคำตอบด้วยผู้สอนด้วย
+ค่าที่ปรับจากชุดทดสอบ `RETRIEVAL_THRESHOLD = 0.38` อยู่ใกล้ต้น `app.py` หากไม่มี chunk ผ่าน จะตอบ **ไม่พบข้อมูลในคลังเอกสาร** ทันทีโดยไม่เรียก API และไม่แสดงแหล่งข้อมูลที่ไม่เกี่ยวข้อง หาก context ไม่พอ Groq ถูกสั่งให้ตอบข้อความเดียวกัน หาก structured citation ถูกต้องแต่ไม่มี inline tag แอปจะเติม tag จาก ID ที่ตรวจแล้ว หาก JSON/citation ผิด จะแสดงข้อผิดพลาดรูปแบบคำตอบแยกจาก NOT_FOUND ไม่แสดงว่าเอกสารไม่มีข้อมูล การตรวจ citation ยืนยันว่าแหล่งอ้างอิงมีอยู่ แต่ไม่ได้พิสูจน์ทุกข้อเท็จจริงของโมเดล ต้องตรวจคุณภาพคำตอบด้วยผู้สอนด้วย
 
 Cosine score ไม่ใช่ความน่าจะเป็น Threshold ต้องปรับจากผลชุดคำถามจริงเมื่อเปลี่ยนข้อมูลหรือโมเดล ชุดทดสอบมีคำถามเครือข่ายและนอกคลัง เช่น Kubernetes/Helm กับ PostgreSQL การผ่านชุดนี้ไม่รับประกันว่าจะแยกคำถามนอกคลังทุกแบบได้
 
-## Prompt Engineering และ Gemini
+## Prompt Engineering และ Groq
 
-ใช้ SDK สมัยใหม่ `from google import genai` กับ `genai.Client(api_key=st.secrets["GEMINI_API_KEY"])` โมเดลตั้งที่ `GEMINI_MODEL` ใน `app.py` ปัจจุบันเลือก `gemini-3.1-flash-lite` ตาม [รายการโมเดลและสถานะจาก Google](https://ai.google.dev/gemini-api/docs/deprecations) ตรวจ availability ในบัญชีและเปลี่ยน constant ได้เมื่อจำเป็น
+ใช้ official Python SDK `groq` (`from groq import Groq`) อ่าน key จาก `st.secrets["GROQ_API_KEY"]` เท่านั้น โมเดลกำหนดที่ `GROQ_MODEL` ใกล้ต้น `app.py`: `openai/gpt-oss-120b` ส่ง system instruction และ retrieved context ผ่าน `client.chat.completions.create` พร้อม JSON response mode; สร้าง Groq client เฉพาะเมื่อมีคำถามที่ผ่าน retrieval threshold เท่านั้น
+
+ตัวอย่างรูปแบบการเรียก:
+
+```python
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+response = client.chat.completions.create(
+    model="openai/gpt-oss-120b",
+    messages=[
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": build_prompt(question, sources)},
+    ],
+    temperature=0.1,
+    response_format={"type": "json_object"},
+    max_tokens=4096,
+)
+```
 
 ตัวอย่างคำสั่งหลักที่ส่งผ่าน system instruction:
 
@@ -52,7 +68,7 @@ Explain diagnosis logically. Cite every factual paragraph using [source_id].
 Only cite IDs from the context. Return JSON with answer and citations.
 ```
 
-Prompt จริงอยู่ใน `SYSTEM_PROMPT` และเพิ่มกฎไม่ทำตามคำสั่งแทรกในเอกสาร/คำถามและไม่เปิดเผย prompt ใช้ temperature ต่ำ ไม่ใช้ web grounding หรือความรู้ภายนอก API timeout 60 วินาที เมื่อไม่มี key แสดงวิธีตั้งค่า เมื่อ API มีปัญหาแสดงข้อความที่เข้าใจได้โดยไม่เผย traceback หรือข้อมูลคำขอ
+Prompt จริงอยู่ใน `SYSTEM_PROMPT` และเพิ่มกฎไม่ทำตามคำสั่งแทรกในเอกสาร/คำถามและไม่เปิดเผย prompt ใช้ temperature ต่ำ ไม่ใช้ web grounding หรือความรู้ภายนอก เมื่อไม่มี key แสดงวิธีตั้งค่า เมื่อ API มีปัญหาแสดงข้อความที่เข้าใจได้โดยไม่เผย traceback หรือข้อมูลคำขอ
 
 ## โครงสร้างโปรเจกต์
 
@@ -69,7 +85,15 @@ network-troubleshooting-rag/
 │   ├── 07_nat.txt
 │   ├── 08_firewall_acl.txt
 │   ├── 09_vpn.txt
-│   └── 10_network_troubleshooting.txt
+│   ├── 10_network_troubleshooting.txt
+│   ├── 11_ethernet_switching.txt
+│   ├── 12_tcp_udp_icmp.txt
+│   ├── 13_arp_mac_table.txt
+│   ├── 14_wireless_network.txt
+│   ├── 15_ipv6.txt
+│   ├── 16_network_security.txt
+│   ├── 17_network_services.txt
+│   └── 18_packet_analysis.txt
 ├── .streamlit/config.toml
 ├── .streamlit/secrets.toml.example
 ├── .gitignore
@@ -102,10 +126,10 @@ python -m pip install -r requirements.txt
 สร้าง `.streamlit/secrets.toml` ในเครื่องเอง หรือใส่ในช่อง Secrets บน Cloud:
 
 ```toml
-GEMINI_API_KEY = "your_gemini_api_key_here"
+GROQ_API_KEY = "your_groq_api_key_here"
 ```
 
-แทน placeholder ด้วย key ของตนเองจาก Google AI Studio ระบบอ่าน key จาก `st.secrets` เท่านั้น ไม่อ่าน `.env` หรือ environment variable ไม่ต้องเพิ่ม key ใน source code หากยังไม่มี key แอปเปิดได้และทดสอบการค้นหา/การปฏิเสธได้ แต่สร้างคำตอบจาก Gemini ไม่ได้
+แทน placeholder ด้วย key ของตนเองจาก Groq Console ระบบอ่าน key จาก `st.secrets` เท่านั้น ไม่อ่าน `.env` หรือ environment variable ไม่ต้องเพิ่ม key ใน source code หากยังไม่มี key แอปเปิดได้และทดสอบการค้นหา/การปฏิเสธได้ แต่สร้างคำตอบจาก Groq ไม่ได้
 
 ## ทดสอบ
 
@@ -113,15 +137,15 @@ GEMINI_API_KEY = "your_gemini_api_key_here"
 python test_rag.py
 ```
 
-ชุดทดสอบโหลดข้อมูลจริง ตรวจจำนวนเอกสารและตัวอักษร, chunking, overlap, embedding count/dimension/normalization, จำนวนเวกเตอร์ FAISS, relevant sources และคะแนนคำถามนอกคลัง รวมถึงตรวจว่าไม่เรียก Gemini สำหรับคำถามที่คะแนนต่ำ ทดสอบ citation ที่ผิดด้วย mock และใช้ Streamlit AppTest ตรวจหน้าจอ, missing secrets, ประวัติ และ Clear Chat ไม่มีการใช้ quota Gemini ในชุดทดสอบ
+ชุดทดสอบโหลดข้อมูลจริง ตรวจจำนวนเอกสารและตัวอักษร, chunking, overlap, embedding count/dimension/normalization, จำนวนเวกเตอร์ FAISS, relevant sources และคะแนนคำถามนอกคลัง รวมถึงตรวจว่าไม่เรียก Groq สำหรับคำถามที่คะแนนต่ำ ทดสอบ citation ที่ผิดด้วย mock และใช้ Streamlit AppTest ตรวจหน้าจอ, missing secrets, ประวัติ และ Clear Chat ไม่มีการใช้ quota Groq ในชุดทดสอบ
 
-`test_questions.csv` มี 18 กรณีและ 3 `NOT_FOUND` รวมคำถาม regression ที่แจ้งมา หลังตั้ง key ให้ลองถามจริงและตรวจความถูกต้องกับเอกสารเพิ่มเติม ห้ามถือว่าการทดสอบ retrieval เป็นการทดสอบคุณภาพคำตอบ Gemini
+`test_questions.csv` มี 27 กรณีและ 4 `NOT_FOUND` โดยเก็บ 18 regression เดิมและเพิ่ม 9 กรณีสำหรับหัวข้อใหม่ รวม Mobile Legends หลังตั้ง key ให้ลองถามจริงและตรวจความถูกต้องกับเอกสารเพิ่มเติม ห้ามถือว่าการทดสอบ retrieval เป็นการทดสอบคุณภาพคำตอบจาก Groq
 
 ## Deploy บน Streamlit Community Cloud
 
 1. นำไฟล์โปรเจกต์ขึ้น repository ของตนโดยไม่รวม `.venv/` และ secrets จริง
 2. บน Streamlit Community Cloud เลือก repository/branch และ entry point `app.py`
-3. เลือก Python 3.12 ใน advanced settings และใส่ `GEMINI_API_KEY` ใน Secrets
+3. เลือก Python 3.12 ใน advanced settings และใส่ `GROQ_API_KEY` ใน Secrets
 4. Deploy แล้วรอการติดตั้งและดาวน์โหลดโมเดลครั้งแรก ตรวจ log ถ้า dependency หรือ network ล้มเหลว
 5. ลองคำถามไทย อังกฤษ และคำถามนอกคลัง ตรวจ citation และ Clear Chat
 
@@ -129,7 +153,7 @@ python test_rag.py
 
 ## คลังความรู้และแหล่งเอกสาร
 
-เอกสารทั้ง 10 ไฟล์ใน `data/` เป็นเนื้อหาการศึกษาที่เขียนใหม่สำหรับโปรเจกต์นี้ ใช้ภาษาไทยและศัพท์เครือข่ายอังกฤษ ไม่ใช่การนำ manual หรือเว็บไซต์ภายนอกเข้า index หัวข้อครอบคลุม OSI/TCP-IP, subnetting, VLAN, STP, OSPF, DHCP/DNS, NAT, ACL/firewall, VPN และวิธี troubleshooting ตัวอย่างคำสั่งระบุ platform เมื่อจำเป็น ต้องปรับ interface และ address ให้เข้ากับระบบจริง
+เอกสารทั้ง 18 ไฟล์ใน `data/` เป็นเนื้อหาการศึกษาที่เขียนใหม่สำหรับโปรเจกต์นี้ ใช้ภาษาไทยและศัพท์เครือข่ายอังกฤษ ไม่ใช่การนำ manual หรือเว็บไซต์ภายนอกเข้า index หัวข้อครอบคลุม OSI/TCP-IP, subnetting, VLAN, STP, OSPF, DHCP/DNS, NAT, ACL/firewall, VPN วิธี troubleshooting, Ethernet switching, TCP/UDP/ICMP, ARP/MAC table, wireless, IPv6, network security, services และ packet analysis ตัวอย่างคำสั่งระบุ platform เมื่อจำเป็น ต้องปรับ interface และ address ให้เข้ากับระบบจริง
 
 ตัวอย่างคำถาม:
 
@@ -142,7 +166,7 @@ python test_rag.py
 
 ## ความปลอดภัยของ API Key
 
-ห้าม commit API key เพราะผู้ที่เห็นสามารถใช้ quota และสิทธิ์ของบัญชีได้ `.gitignore` ปิด `.streamlit/secrets.toml`, `.env`, virtual environments และ bytecode มีเพียงไฟล์ example ที่ไม่มี credentials หาก key เคยถูกเผยแพร่ต้อง revoke/rotate ที่ผู้ให้บริการ การลบออกจากไฟล์ล่าสุดอย่างเดียวไม่ลบจากประวัติ Git คำถามกับ retrieved context ถูกส่งให้ Gemini เมื่อผ่าน threshold จึงไม่ควรเพิ่มข้อมูลลับในคลังหรือแชต
+ห้าม commit API key เพราะผู้ที่เห็นสามารถใช้ quota และสิทธิ์ของบัญชีได้ `.gitignore` ปิด `.streamlit/secrets.toml`, `.env`, virtual environments และ bytecode มีเพียงไฟล์ example ที่ไม่มี credentials หาก key เคยถูกเผยแพร่ต้อง revoke/rotate ที่ผู้ให้บริการ การลบออกจากไฟล์ล่าสุดอย่างเดียวไม่ลบจากประวัติ Git คำถามกับ retrieved context ถูกส่งให้ Groq เมื่อผ่าน threshold จึงไม่ควรเพิ่มข้อมูลลับในคลังหรือแชต
 
 ## ตรวจ retrieval และผลแก้ไข
 
@@ -151,12 +175,31 @@ python debug_retrieval.py
 python test_rag.py
 ```
 
-`debug_retrieval.py` ไม่เรียก Gemini แสดง OSPF Top-5, ตารางทุกคำถาม, จำนวนเวกเตอร์, token limit และ L2 norms บันทึกผลที่ `diagnostics/retrieval_results.csv` และ `diagnostics/retrieval_details.json` ผลก่อนแก้อยู่ใน `diagnostics/ospf_before.json` ดูรายงานเต็มใน [diagnostics/retrieval_fix_report.md](diagnostics/retrieval_fix_report.md)
+`debug_retrieval.py` ไม่เรียก Groq API แสดง OSPF Top-5, ตารางทุกคำถาม, จำนวนเวกเตอร์, token limit และ L2 norms บันทึกผลที่ `diagnostics/retrieval_results.csv` และ `diagnostics/retrieval_details.json` ผลก่อนแก้อยู่ใน `diagnostics/ospf_before.json` ดูรายงานเต็มใน [diagnostics/retrieval_fix_report.md](diagnostics/retrieval_fix_report.md)
 
 เปิด **Show Retrieval Debug** ใน sidebar เพื่อแสดง source, chunk, cosine score, ผล threshold และขั้นที่เกิดปัญหาใต้ข้อความตอบ เช่น `retrieval_below_threshold`, `model_insufficient_evidence`, `invalid_model_output`, `processing_error` โหมดนี้ไม่แสดง prompt หรือ key ส่วน Retrieved Sources แสดงเฉพาะ chunks ที่อ้างในคำตอบ
 
-ชุดทดสอบล่าสุดผ่าน 7 tests รวม UI ที่จำลองคำตอบ OSPF พร้อม citation และ Retrieval Debug (ไม่มี API call ใน automated tests)
+ชุดทดสอบล่าสุดผ่าน 8 tests รวม UI ที่จำลองคำตอบ OSPF พร้อม citation, Retrieval Debug, missing secrets, ล้างบทสนทนา และปุ่มคำถามตัวอย่างที่ submit ผ่าน pipeline เดียวกับแชต (ไม่มี API call ใน automated tests)
 
-ผลตรวจล่าสุด: เอกสาร 10 ไฟล์, 22,567 ตัวอักษรก่อน clean และ 22,557 หลัง clean, 63 chunks และ 63 เวกเตอร์ 384 มิติ ทุก chunk ไม่เกิน 128 tokens ของโมเดล ทั้ง document/query มี L2 norm ใกล้ 1 ชุดคำถาม 18 กรณีผ่านทั้งหมด คำถามเครือข่ายมีคะแนนสูงสุดต่อคำถามต่ำสุด 0.4659 ส่วนคำถาม NOT_FOUND มีค่าสูงสุด 0.2883 ค่า 0.38 อยู่ใกล้กึ่งกลางของช่องว่างนี้ เป็นการ calibration จากชุดนี้ ไม่รับประกันคำถามทุกแบบ
+ผลหลังขยายคลัง: 18 เอกสาร, 38,996 ตัวอักษรก่อน clean และ 38,978 หลัง clean, 105 chunks / FAISS vectors 384 มิติ ทุก chunk ไม่เกิน 128 tokens ทั้ง document/query มี L2 norm ใกล้ 1 Retrieval ผ่านทั้ง 27 คำถาม คำถาม GROUNDED มีคะแนนสูงสุดต่อคำถามต่ำสุด 0.4659 ส่วน NOT_FOUND สูงสุด 0.2883 จึงคง threshold 0.38 โดยไม่ลดเพิ่ม ดู [รายงานล่าสุด](diagnostics/netassist_expansion_report.md) และ [ตารางผลทุกคำถาม](diagnostics/retrieval_results.csv)
 
-การแก้ไขรักษาย่อหน้าที่เคยหายระหว่าง normalize และแบ่งตาม token limit เพื่อไม่ให้ embedding ตัดข้อความท้าย chunk ขยายหัวข้อ OSPF EXSTART/EXCHANGE รวม master/slave negotiation และแยกปัญหา Hello จากการแลก DBD รวมถึงแก้ validation ไม่ให้คำตอบที่มี structured citations ถูกต้องแต่ไม่มี inline tags กลายเป็น NOT_FOUND โดยผิดเหตุผล รุ่นโมเดล Gemini คง `gemini-3.1-flash-lite` และไม่มีการแก้ secrets จริง
+## หน้าจอ NetAssist RAG
+
+- Header ระบุ Network Troubleshooting Assistant พร้อม capability tags: Routing, Switching, Firewall, VPN, TCP/IP และ Wireless
+- Sidebar แสดง status ตามความพร้อมของคลังและ API, Documents, Chunks และ Knowledge Coverage
+- Technology อยู่ใน expander; full model path, IndexFlatIP, Top-K, threshold และ debug control อยู่ใน Advanced RAG Details
+- Empty state มีคำถามตัวอย่าง 4 ข้อ กดเพื่อส่งคำถามจริง ไม่ใช่คำตอบที่เตรียมไว้ ประวัติไม่ถูกเพิ่มซ้ำเมื่อ rerun
+- Retrieved Sources แสดงชื่อไฟล์, chunk, cosine และ preview พร้อม Full evidence expander คงข้อความอ้างอิงทั้งหมดให้ตรวจได้
+- NOT_FOUND คง answer string เดิมเป๊ะ คำแนะนำหัวข้อที่ถามได้เป็น UI caption แยกต่างหาก
+- CSS ใช้เฉพาะ class ที่แอปสร้าง ไม่ซ่อน Streamlit controls ไม่เพิ่ม UI library หรือ embedding model ใช้ native layout และ tags ที่ wrap ตามหน้าจอ
+
+Groq ใช้รุ่น `openai/gpt-oss-120b`; provider migration เปลี่ยนเฉพาะ API call/secret/model และคง retrieval, prompt grounding, citation validation, UI, เอกสาร, FAISS และ threshold 0.38 ไว้ การทดสอบใช้ mock จึงไม่ส่งคำถามหรือข้อมูลออกไปยัง API
+
+
+## Groq SDK และ model availability
+
+หลังเปลี่ยน requirements ให้ติดตั้ง dependency ใน virtual environment ที่ใช้รัน Streamlit ด้วย `python -m pip install -r requirements.txt` รอบตรวจ local พบว่า SDK ยังไม่ติดตั้ง (`ModuleNotFoundError: No module named 'groq'`) และเมื่อติดตั้ง groq 0.37.1 แล้ว โมเดลเดิมตอบ HTTP 404: `The model llama-3.3-70b-versatile does not exist or you do not have access to it.`
+
+จึงเปลี่ยนเฉพาะ `GROQ_MODEL` เป็น `openai/gpt-oss-120b` หลังยืนยันจาก Models API ว่าบัญชีนี้เข้าถึงได้ และเป็น production text model ใน [Supported Models ของ Groq](https://console.groq.com/docs/models) ไม่เปลี่ยน retrieval, FAISS, documents, chunking หรือ threshold 0.38
+
+หลังแก้ ทดสอบคำถาม “OSPF Neighbor ค้างอยู่ที่ EXSTART เกิดจากอะไร?” ผ่าน Groq จริงหนึ่งครั้งสำเร็จ ได้คำตอบ grounded พร้อม citations จาก `05_ospf.txt` และผ่าน citation validation เดิม ไม่มีการเปิดเผยหรือแก้ secrets ไม่มีการ commit/push

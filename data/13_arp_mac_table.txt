@@ -1,0 +1,14 @@
+ARP และ MAC address table: แยก Layer 2 neighbor จาก switching table
+ARP cache ที่ host จับคู่ IPv4 next-hop กับ MAC ส่วน MAC address table ที่ switch จับคู่ MAC กับ port และ VLAN ทั้งสองตารางคนละหน้าที่ เครื่องจะ ARP หาปลายทางเมื่ออยู่ subnet เดียวกัน และ ARP หา gateway เมื่ออยู่นอก subnet หากไม่รู้ความต่างนี้อาจค้น MAC ของ remote server ใน switch ต้นทางโดยผิดสมมติฐาน
+
+ARP incomplete หรือไม่มี reply
+หาก ip neigh แสดง INCOMPLETE/FAILED ให้ตรวจ target IP, mask, link, access VLAN, trunk allowed VLAN และ interface ของ gateway จับ ARP request/reply ที่ host และ gateway ถ้า request ไม่ถึง gateway ให้ไล่ Layer 2 path ถ้า gateway ตอบแต่ host ไม่เห็น ให้ดู switch port/filter ระหว่างทาง ARP เป็น broadcast ภายใน VLAN จึงไม่คาดหวังว่า router จะส่ง ARP broadcast ข้าม subnet
+
+Duplicate IP และ ARP entry เปลี่ยน
+อาการ connection หลุดเป็นช่วงหรือ MAC ของ IP เดียวเปลี่ยนอาจเกิดจาก duplicate IP ตรวจ arp -a หรือ ip neigh หลายครั้งพร้อม timestamps เปรียบเทียบกับ DHCP lease, reservation และ static addressing plan Gratuitous ARP อาจเกิดจาก failover หรือย้าย VM โดยชอบธรรม จึงต้องยืนยันตัวตนอุปกรณ์ก่อนกล่าวว่า address conflict แยกเครื่องที่ใช้ IP ซ้ำตามขั้นตอนและจัดสรร address ใหม่จากแผน ไม่สุ่ม IP ใน DHCP pool
+
+MAC table missing หรือเรียนผิด port
+บน Cisco IOS ใช้ show mac address-table เพื่อตรวจ MAC ภายใน VLAN ที่ต้องการ ตารางอาจไม่มี entry เพราะ host ไม่ส่ง frame หรือ entry aging ไปแล้ว ให้สร้าง traffic ที่ได้รับอนุญาตและตรวจอีกครั้ง Unknown unicast flooding ไม่ได้ยืนยันว่า switch เสีย ถ้า MAC ถูกเรียนบน port ที่ไม่คาด ให้ไล่ cabling, intermediate switch, hypervisor bridge และ link aggregation
+
+MAC flapping และการแก้ไขอย่างมีหลักฐาน
+เมื่อ MAC สลับ port ให้เก็บ VLAN, ports, เวลาและ topology changes ตรวจ STP loop กับ host teaming ที่ config ไม่สอดคล้อง ลบ ARP/MAC cache ทั้งระบบไม่ใช่การแก้ต้นเหตุและอาจกระทบบริการ หากต้องล้าง cache ให้เลือก entry และทำหลังเก็บหลักฐาน ทดสอบหลังแก้ด้วย ARP ที่เสถียร, MAC learning ถูก port, ไม่มี error counter เพิ่ม และ application transaction สำเร็จ

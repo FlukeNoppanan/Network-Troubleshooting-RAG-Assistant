@@ -4,7 +4,7 @@ id,question,expected_type,expected_source,top_source,top_score,expected_rank,res
 3,DHCP client cannot obtain an IP address how do I troubleshoot?,GROUNDED,06_dhcp_dns.txt,06_dhcp_dns.txt,0.8108,1.0,PASS
 4,DNS resolution fails but access by IP works what should I check?,GROUNDED,06_dhcp_dns.txt,06_dhcp_dns.txt,0.7763,1.0,PASS
 5,How do I troubleshoot outbound NAT translations?,GROUNDED,07_nat.txt,07_nat.txt,0.6436,1.0,PASS
-6,เกิด STP loop และ MAC flapping ต้องตรวจอะไร?,GROUNDED,04_stp_rstp.txt,04_stp_rstp.txt,0.6035,1.0,PASS
+6,เกิด STP loop และ MAC flapping ต้องตรวจอะไร?,GROUNDED,04_stp_rstp.txt,13_arp_mac_table.txt,0.7463,3.0,PASS
 7,VPN ส่ง packet เล็กได้แต่เว็บค้าง ต้องตรวจ MTU และ MSS อย่างไร?,GROUNDED,09_vpn.txt,09_vpn.txt,0.7933,1.0,PASS
 8,How do I troubleshoot a firewall rule blocking TCP traffic?,GROUNDED,08_firewall_acl.txt,08_firewall_acl.txt,0.7785,1.0,PASS
 9,ตั้ง subnet mask หรือ default gateway ผิดมีอาการอย่างไร?,GROUNDED,02_ip_subnetting.txt,03_vlan_trunking.txt,0.669,2.0,PASS
@@ -17,3 +17,12 @@ id,question,expected_type,expected_source,top_source,top_score,expected_rank,res
 16,Client ไม่ได้รับ IP Address จาก DHCP ควรตรวจสอบอะไร?,GROUNDED,06_dhcp_dns.txt,06_dhcp_dns.txt,0.8007,1.0,PASS
 17,VLAN เดียวกันแต่เครื่องสองเครื่องสื่อสารกันไม่ได้ ควรตรวจสอบอะไร?,GROUNDED,03_vlan_trunking.txt,03_vlan_trunking.txt,0.7837,1.0,PASS
 18,วิธี Deploy Kubernetes ด้วย Helm ทำยังไง?,NOT_FOUND,,04_stp_rstp.txt,0.2812,,PASS
+19,Wi-Fi ช้าและหลุดบ่อย ควรตรวจ RSSI SNR และ interference อย่างไร?,GROUNDED,14_wireless_network.txt,14_wireless_network.txt,0.7758,1.0,PASS
+20,IPv6 Neighbor Discovery ไม่สำเร็จและไม่มี default route ควรตรวจอะไร?,GROUNDED,15_ipv6.txt,15_ipv6.txt,0.8329,1.0,PASS
+21,MAC address table เรียน MAC สลับ port และ ARP entry เปลี่ยน ควรตรวจอะไร?,GROUNDED,13_arp_mac_table.txt,13_arp_mac_table.txt,0.8216,1.0,PASS
+22,How do I troubleshoot Ethernet speed duplex mismatch and CRC errors?,GROUNDED,11_ethernet_switching.txt,11_ethernet_switching.txt,0.6783,1.0,PASS
+23,Wireshark แสดง TCP Out-of-Order และ checksum incorrect เป็น packet loss จริงไหม?,GROUNDED,18_packet_analysis.txt,10_network_troubleshooting.txt,0.7556,3.0,PASS
+24,NTP ไม่ sync และ SSH connection refused ต้องตรวจ service อะไร?,GROUNDED,17_network_services.txt,17_network_services.txt,0.78,1.0,PASS
+25,802.1X ผ่านแต่ Dynamic ARP Inspection drop ARP ควรตรวจอะไร?,GROUNDED,16_network_security.txt,13_arp_mac_table.txt,0.6401,2.0,PASS
+26,Mobile Legends ควรเลือกฮีโร่ตัวไหนและออกไอเทมอย่างไร?,NOT_FOUND,,14_wireless_network.txt,0.1841,,PASS
+27,Destination host unreachable ต่างจาก Request timed out อย่างไร และควรตรวจ ICMP ผู้ส่งอย่างไร?,GROUNDED,12_tcp_udp_icmp.txt,12_tcp_udp_icmp.txt,0.7995,1.0,PASS

@@ -1,0 +1,14 @@
+Ethernet Switching: link up แต่รับส่งข้อมูลไม่ได้
+Ethernet switch เรียน source MAC จาก frame ขาเข้าและบันทึกพร้อม VLAN กับ port ใน forwarding table เมื่อ destination MAC เป็น known unicast จะส่งเฉพาะ port ที่เรียนไว้ ถ้าเป็น unknown unicast อาจ flood ภายใน VLAN ตาม policy Broadcast ก็อยู่ใน broadcast domain เดียวกัน การเห็น link up จึงไม่ยืนยันว่า MAC ถูกเรียนหรือ VLAN ถูกต้อง ต้องตรวจ port ที่เสียบจริงและเส้นทาง uplink
+
+Speed/duplex mismatch และ error counters
+อาการ throughput ต่ำ, packet loss หรือ latency สูงเฉพาะลิงก์อาจเกี่ยวกับ duplex mismatch โดยเฉพาะเมื่อปลายหนึ่งถูกบังคับค่าและอีกฝั่งใช้ auto-negotiation ตรวจ negotiated speed/duplex ทั้งสองฝั่งและ counters เช่น CRC/FCS errors, alignment errors, collisions หรือ drops ค่า CRC เพิ่มอาจเกิดจากสายหรือ transceiver ไม่ได้พิสูจน์ duplex mismatch เพียงอย่างเดียว เก็บค่าก่อนและหลังช่วงทดสอบเพื่อดูอัตราเพิ่ม
+
+ตรวจ Physical link และสาย
+ตรวจ connector, cable category, ความยาวสาย, transceiver ที่รองรับ และสถานะ optical power ตามอุปกรณ์ อย่าถอดเปลี่ยนสาย uplink ระหว่างบริการโดยไม่วางแผน หาก port up/down เป็นช่วง ให้เทียบ timestamps กับ log และ counter ทดลองเปลี่ยนสายหรือ port ทีละอย่างบนช่วงที่ได้รับอนุญาต การเปลี่ยนหลายจุดพร้อมกันทำให้ระบุสาเหตุไม่ได้ ตรวจว่าค่า MTU และ VLAN ของ port ใหม่ตรงกับเดิมก่อนย้าย
+
+MAC flapping กับ topology
+MAC เดียวที่เรียนสลับหลาย ports อย่างรวดเร็วอาจเกิดจาก switching loop, bridge ที่ตั้งผิด, host teaming หรือการเคลื่อนที่ของ VM อย่าสรุปว่าเป็น loop ทุกกรณี ดู log ว่าอยู่ VLAN ไหนและ ports ใด ตรวจ STP topology, link aggregation และ host bridge เปรียบเทียบเวลาที่เปลี่ยน MAC กับช่วง loss หากพบ storm ให้หยุดวงจรตามแผน incident และคง STP protection ไว้
+
+วิธีตรวจและยืนยัน Ethernet switching
+บน Cisco IOS ใช้ show interfaces counters errors, show interfaces status และ show mac address-table ชื่อคำสั่งอาจต่างตามรุ่น บน Linux ดู ip link และ ethtool <interface> เมื่อมีสิทธิ์ ตรวจ port errors, utilization, egress drops และ MAC ของเครื่องปลายทาง หาก congestion ให้ดู bandwidth และ queue ไม่แก้ด้วยการเปลี่ยน duplex ทันที หลังแก้ทดสอบ bidirectional traffic และตรวจ counter เพิ่มในเวลาที่เทียบได้
