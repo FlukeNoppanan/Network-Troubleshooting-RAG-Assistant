@@ -1,0 +1,15 @@
+Single-area OSPFv2 Lab Configuration
+เปิด OSPFv2 ใน lab
+บน Cisco IOS ตัวอย่าง router ospf 1 ตามด้วย router-id 1.1.1.1 กำหนด process และ Router ID ค่า process ID มีขอบเขต local จึงไม่ต้องเหมือนอีก router ต่างจาก area ID ที่ต้องตรงบน adjacency Router ID ต้องไม่ซ้ำกัน ตรวจค่าที่ใช้งานจริงเพราะการเปลี่ยนค่า configured ไม่ได้เปลี่ยน active state ทันทีทุกกรณี
+
+เลือก interface ด้วย wildcard
+ตัวอย่าง network 10.0.0.0 0.0.0.3 area 0 ใช้ match interface ที่อยู่ในช่วง ไม่ใช่ subnet mask ของ routing advertisement โดยตรง อีกวิธีบน interface คือ ip ospf 1 area 0 เมื่อรุ่นรองรับ ตรวจ show ip ospf interface ว่า interface ที่ตั้งใจเข้าร่วมจริงและใช้ area ตาม design
+
+Passive-interface สำหรับ LAN
+Passive interface ไม่สร้าง adjacency แต่สามารถโฆษณา connected network ที่เข้าร่วม OSPF ได้ วิธี passive-interface default และ no passive-interface บน link ระหว่าง routers ช่วยจำกัด neighbor ที่ไม่ต้องการ ต้องตรวจ uplink ที่ควรสร้าง neighbor ไม่ถูก passive โดยผิดพลาด
+
+Point-to-point กับ broadcast network
+Point-to-point network type ไม่ใช้ DR/BDR ส่วน broadcast เลือก DR/BDR ตาม priority และ Router ID การเลือกไม่ใช่การแย่งตำแหน่งใหม่ทันทีเมื่อ router ที่ priority สูงกว่ามาเพิ่ม ตรวจ network type ทั้งสองฝั่งและ role ก่อนตีความ 2-Way ว่าผิดปกติ
+
+Verify OSPF route และ cost
+ใช้ show ip ospf neighbor, show ip ospf interface และ show ip route ospf ตรวจ adjacency, advertised prefix และ route เลือก Cost อาจมาจาก reference bandwidth หรือค่าที่ตั้งเฉพาะ interface ทดสอบ data traffic พร้อม return route ไม่ถือว่า neighbor Full ยืนยันบริการปลายทางทุกประเภท

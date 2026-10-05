@@ -1,18 +1,18 @@
 {
   "stats": {
-    "documents": 18,
-    "raw_characters": 38996,
-    "cleaned_characters": 38978,
-    "chunks": 105,
-    "vectors": 105,
+    "documents": 48,
+    "raw_characters": 87131,
+    "cleaned_characters": 87082,
+    "chunks": 261,
+    "vectors": 261,
     "dimensions": 384,
     "max_chunk_tokens": 128,
     "model_token_limit": 128,
     "query_norm": 1.0000001192092896,
-    "document_norm_min": 0.9999999403953552,
+    "document_norm_min": 0.9999998807907104,
     "document_norm_max": 1.0000001192092896,
-    "min_grounded_top_score": 0.4659,
-    "max_not_found_top_score": 0.2883,
+    "min_grounded_top_score": 0.4304,
+    "max_not_found_top_score": 0.3269,
     "threshold": 0.38
   },
   "ospf_top_5": [
@@ -27,7 +27,7 @@
       "source": "05_ospf.txt",
       "chunk_number": 4,
       "text": "OSPF Neighbor ค้างอยู่ที่ EXSTART: MTU mismatch และ master/slave negotiation\nEXSTART เป็นขั้นเจรจา master/slave และ DBD sequence number ก่อนแลกฐานข้อมูล Router ID ที่สูงกว่าเป็น master หาก MTU ของสอง interface ไม่ตรงกัน peer อาจปฏิเสธ Database Description (DBD) ทำให้ค้าง EXSTART หรือ EXCHANGE ต้องตรวจ MTU ทั้งสองฝั่ง ไม่สรุปสาเหตุจาก state อย่างเดียว Router ID ซ้ำหรือ packet loss ก็รบกวนการแลก DBD ได้",
-      "score": 0.5650074481964111,
+      "score": 0.5650075078010559,
       "source_id": "S2"
     },
     {
@@ -45,10 +45,10 @@
       "source_id": "S4"
     },
     {
-      "source": "05_ospf.txt",
-      "chunk_number": 2,
-      "text": "เงื่อนไขการเกิด neighbor\nตรวจ subnet, area ID, network type, hello/dead timers, authentication และ stub-area options ให้เข้ากัน Router ที่ passive interface จะไม่ส่ง Hello เพื่อสร้าง neighbor ตรวจ packet capture ว่าเห็น Hello ทั้งขาเข้าและออกหรือไม่ ACL ต้องอนุญาต OSPF protocol 89 และ multicast ที่เกี่ยวข้องบน segment โดย Ethernet broadcast ใช้ 224.0.0.5 และ 224.0.0.6 ตามบทบาท การ ping ผ่านได้ไม่ยืนยันว่า OSPF packet ผ่าน",
-      "score": 0.43415403366088867,
+      "source": "39_ntp_snmp_syslog.txt",
+      "chunk_number": 4,
+      "text": "อ่านไม่ได้ให้ตรวจ MIBsupport กับ permissions แยก counter ที่ reset หลัง reboot จาก networktraffic หายจริง เปรียบเทียบ pollinterval กับเวลา incident\n\nSyslog facilities และ severity\nFacility บอกประเภท/แหล่ง message ส่วน severity เรียง 0emergency ถึง 7debug ค่าต่ำหมายถึงรุนแรงกว่า Threshold ที่ log อาจรวมระดับรุนแรงกว่านั้นตาม platform ระดับ debug อาจมีข้อมูลมากและกระทบ resource จึงใช้ตามช่วงที่อนุญาต ไม่เปิดถาวรโดยไม่ประเมิน",
+      "score": 0.4599881172180176,
       "source_id": "S5"
     }
   ]

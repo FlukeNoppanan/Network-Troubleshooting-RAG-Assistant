@@ -1,0 +1,15 @@
+Copper Fiber Transceivers และ Power over Ethernet
+Copper และ fiber media
+สาย twisted-pair ใช้ copper มีข้อจำกัดระยะและความเร็วตามมาตรฐาน ส่วน fiber ใช้แสง Single-mode และ multimode ใช้ optic กับระยะที่ต่างกัน ต้องจับคู่ fiber, wavelength, connector และ transceiver ให้รองรับกัน ไม่ถือว่าเสียบ SFP ได้แล้วจะส่งข้อมูลได้ ตรวจ compatibility ของ port และ module รุ่นจริง
+
+Polarity และ optical loss
+Fiber Tx ของฝั่งหนึ่งต้องไป Rx อีกฝั่ง หาก link ไม่ขึ้นตรวจ polarity, connector cleanliness, bend radius และ optical power ตามเกณฑ์ผู้ผลิต สัญญาณต่ำเกินอาจเกิดจากสายหรือ optic; สูงเกินก็อาจมีปัญหา เก็บ readings ทั้งสองฝั่งก่อนเปลี่ยนอุปกรณ์ ห้ามมองเข้าปลาย fiber โดยตรงขณะใช้งาน
+
+Copper speed และ negotiation
+ตรวจ speed/duplex ที่ทั้งสองฝั่งและชนิดสายตาม link requirement คู่สายเสียอาจทำให้ความเร็วลดหรือ link flapping ดู CRC/FCS กับ interface resets และทดสอบด้วยสายที่ทราบว่าปกติ การบังคับ speed ฝั่งเดียวอาจสร้าง mismatch อย่าคิดว่าค่า auto เท่ากับผิดโดยอัตโนมัติ
+
+PoE power budget
+PoE switch จ่ายไฟให้ powered device เช่น AP หรือ IP phone ต้องดูมาตรฐานที่อุปกรณ์ต้องการ, wattage ต่อ port และ budget รวม Switch ที่มี data link up แต่ PoE ไม่พออาจทำให้ AP reboot หรือปิดบาง radio ตรวจ power allocation, deny/overcurrent logs และ PSU capacity ไม่แก้ด้วยการเพิ่มค่าเกินความสามารถของ hardware
+
+ตรวจ cabling อย่างเป็นระบบ
+บน Cisco IOS ใช้ show interfaces และ show power inline เมื่อรุ่นรองรับ ดู link errors กับ power ก่อนและหลังเปลี่ยนสายหรือย้าย port เปลี่ยนทีละส่วนบนช่วงที่ได้รับอนุญาต ตรวจ VLAN และ configuration ของ port ใหม่ให้ตรง ไม่ย้าย uplink โดยไม่มีแผน rollback และไม่ใช้งาน optic ที่ไม่รองรับเพื่อแก้ปัญหาเฉพาะหน้า

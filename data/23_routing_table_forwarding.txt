@@ -1,0 +1,15 @@
+Routing Table Administrative Distance และ Longest Prefix Match
+อ่าน routing table
+Routing table มี destination prefix, next hop, exit interface และข้อมูลแหล่ง route เช่น connected, static หรือ dynamic บาง platform แสดง administrative distance กับ metric ในวงเล็บ ตรวจ source ของ route ไม่ดู destination อย่างเดียว บน Cisco IOS ใช้ show ip route และ show ipv6 route
+
+Longest prefix match ในการ forwarding
+เมื่อมี route ที่ติดตั้งแล้วหลาย prefix ครอบ destination ให้เลือก prefix ที่ยาวที่สุดก่อน เช่น packet ไป 10.1.2.20 ใช้ 10.1.2.0/24 แทน 10.0.0.0/8 หรือ default route แม้ /24 มาจาก static route ที่มี distance สูงกว่า ค่า distance ใช้เลือก route candidates ของ prefix เดียว ไม่เปรียบเทียบข้าม prefix เพื่อ forwarding
+
+Administrative distance และ metric
+เมื่อมี candidates สำหรับ prefix เดียวกัน distance บอกความเชื่อถือของแหล่ง route ภายใน router; metric ใช้เลือกเส้นทางภายใน protocol ตามกฎของ protocol อย่าเปรียบเทียบเลข OSPF cost กับ metric ของ protocol อื่นว่าเลขน้อยต้องชนะ ตรวจ route ที่ active จริงและ policy ที่อาจเปลี่ยนการเลือก
+
+Recursive next hop และ default route
+Next hop ต้อง resolve ผ่าน route ไปยัง interface ที่ใช้งานได้ Default route ใช้เมื่อไม่มี more-specific match ไม่ได้หมายความว่าปลายทางทั้งหมดมี connectivity หาก next hop unreachable หรือ ARP/ND ไม่สำเร็จ traffic ยังล้มเหลวได้ แม้ตารางแสดง route อยู่
+
+Asymmetric routing และ return path
+Client ส่งถึง server แต่ reply อาจไป router อีกตัวที่ไม่มี firewall/NAT state ให้ตรวจ route ทั้งสองปลายและ intermediate devices Packet capture แยกได้ว่า request ถึงหรือไม่และ reply ออกทางใด การเติม default route ฝั่งต้นทางอย่างเดียวไม่แก้ return path ที่หาย ต้องยืนยัน application flow ทั้งไปกลับ

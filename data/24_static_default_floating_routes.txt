@@ -1,0 +1,15 @@
+IPv4 Static Default Host และ Floating Static Routes
+Network static route บน Cisco IOS
+ตัวอย่าง lab: ip route 192.0.2.0 255.255.255.0 10.0.0.2 ให้ network ปลายทางออก next-hop ที่กำหนด ต้องมีเส้นทางถึง 10.0.0.2 และ interface ถูกต้อง ที่ Ethernet มักระบุ next hop ชัดเพื่อลดการ ARP หาทุก destination ตัวอย่างใช้ address สำหรับเอกสาร ไม่ใช่ configuration ของระบบจริง
+
+Default และ host route
+ip route 0.0.0.0 0.0.0.0 10.0.0.2 เป็น default route ใช้เมื่อไม่มี more-specific prefix ส่วน ip route 192.0.2.10 255.255.255.255 10.0.0.2 เป็น host route /32 ใช้เฉพาะเครื่องนั้น อย่าใช้ host route จำนวนมากแทนการแก้ network plan โดยไม่มีเหตุผล
+
+Floating static backup
+Floating static route ตั้ง administrative distance สูงกว่า route หลักของ prefix เดียว ตัวอย่าง lab ใช้ค่า 200 เพื่อเป็น backup ให้ route ที่มี distance ต่ำกว่า เมื่อ route หลักถอน route สำรองจึงถูกเลือก ต้องตรวจ reachability ของ backup path และ return route ด้วย ไม่ถือว่าเส้นทางสำรองทำงานเพียงเพราะคำสั่งอยู่ใน configuration
+
+เหตุใด static route ไม่ถูกใช้
+ตรวจ mask, next-hop resolution, interface state และว่ามี route ที่ distance ต่ำกว่าสำหรับ prefix เดียวหรือ more-specific match หรือไม่ Static route ที่ชี้ next hop ยัง up อาจคงอยู่แม้บริการไกลล้มเหลว เพราะ link state ไม่เท่ากับ end-to-end reachability Tracking เป็นทางเลือกตาม design/platform ไม่ใช่หลักฐานว่า route ควรถูกถอนเสมอ
+
+ทดสอบ failover อย่างควบคุม
+เก็บ routing table ก่อนทดสอบ รู้ขอบเขต packet loss/convergence และกำหนด rollback ปิดเส้นทางหลักเฉพาะใน lab หรือช่วงอนุญาต ตรวจทั้ง route, ARP และบริการปลายทาง เมื่อคืนเส้นทางหลักตรวจว่าเลือกกลับตาม policy ที่ออกแบบไว้ ไม่ clear routing ทั้งระบบเพื่อทำให้ backup ดูเหมือนใช้งานได้

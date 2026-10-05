@@ -1,0 +1,15 @@
+NTP SNMP และ Syslog สำหรับ Network Operations
+NTP client/server modes
+NTP ใช้ time source เพื่อให้ log และ authentication อ้างเวลาเดียวกัน Router อาจเป็น client ของ upstream และให้เวลาต่อแก่ downstream ตาม design Cisco IOSlab ตั้ง ntp server192.0.2.123 และตรวจ show ntp associations/show ntp status เมื่อรองรับ Stratum สะท้อนลำดับห่างจาก reference ไม่ใช่ค่า latency
+
+SNMP polling กับ traps
+SNMPmanager อ่านค่าจาก agent เพื่อ monitor ส่วน trap เป็น notification ที่ agents ่งเอง Polling มัก UDP161 และ trapsUDP162 ตรวจ version,credentials,ACL และ source interface SNMPv3 รองรับ authentication/privacy ตามระดับที่ใช้ ไม่เผย communitystring หรือ authkey ใน log ค่า timeout ไม่พิสูจน์ว่า device ล่มเสมอ
+
+MIB และ OID
+MIB นิยาม object ที่ monitor และ OID ระบุ object ในโครงสร้าง ไม่ใช่ทุก device มี OID เหมือนกันสำหรับ feature เฉพาะ หาก counter อ่านไม่ได้ให้ตรวจ MIBsupport กับ permissions แยก counter ที่ reset หลัง reboot จาก networktraffic หายจริง เปรียบเทียบ pollinterval กับเวลา incident
+
+Syslog facilities และ severity
+Facility บอกประเภท/แหล่ง message ส่วน severity เรียง 0emergency ถึง 7debug ค่าต่ำหมายถึงรุนแรงกว่า Threshold ที่ log อาจรวมระดับรุนแรงกว่านั้นตาม platform ระดับ debug อาจมีข้อมูลมากและกระทบ resource จึงใช้ตามช่วงที่อนุญาต ไม่เปิดถาวรโดยไม่ประเมิน
+
+ตรวจ log collector
+ตรวจ senderdestination,protocol,sourceIP,ACL และ collectoringestion NTP ไม่ sync ทำให้เวลา event หลาย device เทียบกันผิด SyslogUDP ไม่ได้รับประกัน delivery และ collector อาจ drop เมื่อเต็ม ตรวจทั้งฝั่งส่งและรับก่อนสรุปว่าการไม่มี log หมายถึงไม่มี incident

@@ -1,0 +1,15 @@
+Inter-VLAN Routing SVI และ Router-on-a-Stick Lab
+Router-on-a-stick lab
+Router ใช้ subinterfaces บน physical link ที่ต่อ switch แบบ trunk ตัวอย่าง interface GigabitEthernet0/0.10 ตามด้วย encapsulation dot1Q 10 และ ip address 192.168.10.1 255.255.255.0 เป็น gateway VLAN10 Physical interface ต้อง up และ trunk ต้องอนุญาต VLAN10 ใช้ address/interface ให้ตรง lab จริง
+
+SVI บน Layer 3 switch
+ตัวอย่าง interface Vlan10 กำหนด IP gateway และเปิด routing ตาม platform SVI บางระบบต้องมี VLAN active และ port สมาชิกที่ทำงานจึง line protocolup ดู show ip interface brief กับ show vlan brief การตั้ง IP บน SVI อย่างเดียวไม่สร้าง end-to-end connectivity
+
+Access data กับ voice VLAN
+Endpoint ทั่วไปอยู่ access VLAN ส่วนโทรศัพท์อาจมี voice VLAN อีกชุด ข้อมูล data และ voice อาจใช้ tagging ต่างกันตาม design ตรวจ port, VLAN membership และ DHCP option ที่จำเป็น อย่าสรุปว่า client อยู่ voice VLAN เพราะเสียบผ่านโทรศัพท์
+
+Default VLAN และ trunk policy
+Default VLAN เป็นค่าเริ่มต้นของ platform ไม่ใช่ค่าเดียวกับ native VLAN ทุก design VLAN ปกติที่ใช้งานต้องมีอยู่ทั้งฝั่งและผ่าน allowed list ตรวจ tagging ของ router subinterface รวมถึง native behavior ไม่เปลี่ยน native VLAN เพียงฝั่งเดียว
+
+ทดสอบเส้นทางข้าม VLAN
+Client ต้องเข้าถึง gateway ตนเองก่อน จากนั้นตรวจ router route กับ ACL ระหว่าง VLAN และ return path หากเครื่อง LAN เดียวคุยได้แต่ข้าม VLAN ไม่ได้ให้แยก L2 จาก routing เก็บ ARP และ route ทั้งสองฝั่งก่อนแก้ configuration และทดสอบ VLAN อื่นหลังเปลี่ยน trunk เพื่อไม่ตัดบริการเดิม

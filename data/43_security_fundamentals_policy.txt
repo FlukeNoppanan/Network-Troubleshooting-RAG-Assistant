@@ -1,0 +1,15 @@
+Security Fundamentals Threat Vulnerability Exploit และ Mitigation
+Threat vulnerability และ exploit
+Threat คือสิ่งที่อาจก่ออันตราย Vulnerability คือจุดอ่อน ส่วน exploit คือวิธีใช้จุดอ่อนให้เกิดผล Risk พิจารณาโอกาสกับผลกระทบ ไม่ใช่ทุก warning มีความรุนแรงเท่ากัน วิเคราะห์ asset และขอบเขตผู้โจมตีก่อนเลือก mitigation
+
+Least privilege และ segmentation
+ให้สิทธิ์เฉพาะงานที่จำเป็นและแยก network ตามความต้องการควบคุม VLAN แยก broadcast แต่ไม่ใช่ securityboundary ครบถ้ามี routing อนุญาตทุกอย่าง ต้องมี ACL/firewallpolicy และ identitycontrol ประกอบ ตรวจ traffic ที่จำเป็นก่อนปิด segment
+
+Password policy และ alternatives
+ใช้ credential เฉพาะบุคคลและจัดการ rotation/revocation ตาม policy Passwordcomplexity อย่างเดียวไม่แก้ reuse หรือ phishing MFA เพิ่ม factor แต่ต้องเลือก method ให้เหมาะกับระบบ Certificate และ biometrics มีข้อดี/ข้อจำกัดต่างกัน ไม่ถือว่าทุกการ login ด้วย certificate แทน authorization
+
+Awareness และ physical access
+ฝึกผู้ใช้ตรวจ phishing และ reportincident จำกัด console,networkcloset และ portaccess ตามสิทธิ์ Backups/configfiles อาจมี secrets จึงต้องคุมสิทธิ์และการเก็บรักษา Physicalaccess ที่ไม่ได้รับอนุญาตอาจข้าม controls ของ remotechannel ได้
+
+Incident verification และ mitigation
+เมื่อพบ policyviolation ให้เก็บ timestamp,flow,logs และ scope ตรวจ falsepositive ก่อน block ที่กระทบผู้ใช้ Mitigation อาจเป็น patch,configuration change,segmentation หรือ credentialrotation ตามสาเหตุ ไม่ปิด monitoring เพื่อให้ alert หาย ทดสอบทั้งบริการจำเป็นและ control หลังแก้

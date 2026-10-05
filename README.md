@@ -93,7 +93,8 @@ network-troubleshooting-rag/
 │   ├── 15_ipv6.txt
 │   ├── 16_network_security.txt
 │   ├── 17_network_services.txt
-│   └── 18_packet_analysis.txt
+│   ├── 18_packet_analysis.txt
+│   └── 19–48: เอกสาร CCNA เพิ่มเติม (ดู CCNA_COVERAGE.md)
 ├── .streamlit/config.toml
 ├── .streamlit/secrets.toml.example
 ├── .gitignore
@@ -139,7 +140,7 @@ python test_rag.py
 
 ชุดทดสอบโหลดข้อมูลจริง ตรวจจำนวนเอกสารและตัวอักษร, chunking, overlap, embedding count/dimension/normalization, จำนวนเวกเตอร์ FAISS, relevant sources และคะแนนคำถามนอกคลัง รวมถึงตรวจว่าไม่เรียก Groq สำหรับคำถามที่คะแนนต่ำ ทดสอบ citation ที่ผิดด้วย mock และใช้ Streamlit AppTest ตรวจหน้าจอ, missing secrets, ประวัติ และ Clear Chat ไม่มีการใช้ quota Groq ในชุดทดสอบ
 
-`test_questions.csv` มี 27 กรณีและ 4 `NOT_FOUND` โดยเก็บ 18 regression เดิมและเพิ่ม 9 กรณีสำหรับหัวข้อใหม่ รวม Mobile Legends หลังตั้ง key ให้ลองถามจริงและตรวจความถูกต้องกับเอกสารเพิ่มเติม ห้ามถือว่าการทดสอบ retrieval เป็นการทดสอบคุณภาพคำตอบจาก Groq
+`test_questions.csv` มี 59 กรณีและ 4 `NOT_FOUND` โดยเก็บ regression เดิมทั้งหมดและเพิ่มกรณีสำหรับเอกสาร CCNA ใหม่ รวม FTP/TFTP และสิทธิ์ Cisco IOS หลังตั้ง key ให้ลองถามจริงและตรวจความถูกต้องกับเอกสารเพิ่มเติม ห้ามถือว่าการทดสอบ retrieval เป็นการทดสอบคุณภาพคำตอบจาก Groq
 
 ## Deploy บน Streamlit Community Cloud
 
@@ -153,7 +154,9 @@ python test_rag.py
 
 ## คลังความรู้และแหล่งเอกสาร
 
-เอกสารทั้ง 18 ไฟล์ใน `data/` เป็นเนื้อหาการศึกษาที่เขียนใหม่สำหรับโปรเจกต์นี้ ใช้ภาษาไทยและศัพท์เครือข่ายอังกฤษ ไม่ใช่การนำ manual หรือเว็บไซต์ภายนอกเข้า index หัวข้อครอบคลุม OSI/TCP-IP, subnetting, VLAN, STP, OSPF, DHCP/DNS, NAT, ACL/firewall, VPN วิธี troubleshooting, Ethernet switching, TCP/UDP/ICMP, ARP/MAC table, wireless, IPv6, network security, services และ packet analysis ตัวอย่างคำสั่งระบุ platform เมื่อจำเป็น ต้องปรับ interface และ address ให้เข้ากับระบบจริง
+เอกสารทั้ง 48 ไฟล์ใน `data/` เป็นเนื้อหาการศึกษาที่เขียนใหม่สำหรับโปรเจกต์นี้ ใช้ภาษาไทยและศัพท์เครือข่ายอังกฤษ ไม่ใช่การนำ manual หรือเว็บไซต์ภายนอกเข้า index หัวข้อครอบคลุม OSI/TCP-IP, subnetting, VLAN, STP, OSPF, DHCP/DNS, NAT, ACL/firewall, VPN วิธี troubleshooting, Ethernet switching, TCP/UDP/ICMP, ARP/MAC table, wireless, IPv6, network security, services และ packet analysis ตัวอย่างคำสั่งระบุ platform เมื่อจำเป็น ต้องปรับ interface และ address ให้เข้ากับระบบจริง
+
+ขยายเพิ่ม 30 เอกสารครอบคลุม Network Fundamentals, Network Access, IP Connectivity, IP Services, Security Fundamentals และ Automation/Programmability รวม lab commands และขั้นตอนตรวจปัญหา ดูรายละเอียดการจับคู่หัวข้อและลำดับการเรียนใน [CCNA_COVERAGE.md](CCNA_COVERAGE.md)
 
 ตัวอย่างคำถาม:
 
@@ -181,7 +184,7 @@ python test_rag.py
 
 ชุดทดสอบล่าสุดผ่าน 8 tests รวม UI ที่จำลองคำตอบ OSPF พร้อม citation, Retrieval Debug, missing secrets, ล้างบทสนทนา และปุ่มคำถามตัวอย่างที่ submit ผ่าน pipeline เดียวกับแชต (ไม่มี API call ใน automated tests)
 
-ผลหลังขยายคลัง: 18 เอกสาร, 38,996 ตัวอักษรก่อน clean และ 38,978 หลัง clean, 105 chunks / FAISS vectors 384 มิติ ทุก chunk ไม่เกิน 128 tokens ทั้ง document/query มี L2 norm ใกล้ 1 Retrieval ผ่านทั้ง 27 คำถาม คำถาม GROUNDED มีคะแนนสูงสุดต่อคำถามต่ำสุด 0.4659 ส่วน NOT_FOUND สูงสุด 0.2883 จึงคง threshold 0.38 โดยไม่ลดเพิ่ม ดู [รายงานล่าสุด](diagnostics/netassist_expansion_report.md) และ [ตารางผลทุกคำถาม](diagnostics/retrieval_results.csv)
+ผลหลังขยายคลัง CCNA: 48 เอกสาร, 87,131 ตัวอักษรก่อน clean และ 87,082 หลัง clean, 261 chunks / FAISS vectors 384 มิติ ทุก chunk ไม่เกิน 128 tokens ทั้ง document/query มี L2 norm ใกล้ 1 Retrieval ผ่านทั้ง 59 คำถาม คำถาม GROUNDED มีคะแนนสูงสุดต่อคำถามต่ำสุด 0.4304 ส่วน NOT_FOUND สูงสุด 0.3269 จึงคง threshold 0.38 ดู [รายงานล่าสุด](diagnostics/ccna_expansion_report.md) และ [ตารางผลทุกคำถาม](diagnostics/retrieval_results.csv)
 
 ## หน้าจอ NetAssist RAG
 

@@ -1,0 +1,15 @@
+First Hop Redundancy Protocols FHRP
+เหตุผลของ gateway redundancy
+Client มักใช้ default gateway เดียว หาก router ตัวนั้นเสียแม้มี router อีกตัวอยู่ LAN ก็อาจส่งออกไม่ได้ FHRP ให้ gateway address เสมือนที่หลาย routers ร่วมดูแล จึงลด single point of failure ต้องตรวจทั้ง control messages, virtual address และเส้นทาง upstream
+
+Virtual IP กับ router addresses
+HSRP และ VRRP ใช้ virtual gateway address โดย routers มี physical IP ของตนเอง Client ควรใช้ virtual IP ตาม design ไม่ใช้ IP ของ standby router โดยบังเอิญ ARP/ND ของ virtual gateway จะสัมพันธ์กับ virtual MAC การ failover ต้องทำให้ network ส่งถึงอุปกรณ์ที่รับหน้าที่ได้
+
+Priority preemption และ tracking
+Priority มีผลเลือก active/master ตาม protocol Preemption อาจทำให้เครื่องที่ priority สูงกลับมารับหน้าที่เมื่อพร้อม Tracking ช่วยลด priority เมื่อ upstream path เสีย แต่การ track interface เพียงอย่างเดียวไม่วัด remote service availability ต้องเลือกเงื่อนไขตาม design และหลีกเลี่ยง flapping
+
+Active/standby กับสถานะผิดปกติ
+หาก routers ทั้งสองคิดว่าเป็น active ให้ตรวจ VLAN, link, control packet filtering และกลุ่ม/virtual IP ที่ตรงกัน ไม่สรุปว่า priority เป็นสาเหตุทุกกรณี บน Cisco IOS HSRP ใช้ show standby brief ตรวจ role และ virtual IP เมื่อรองรับ ส่วน VRRP มีคำสั่งต่างกัน
+
+ทดสอบ gateway failover
+ยืนยัน client gateway, ARP และ application connectivity ก่อนทดสอบ ควบคุมการปิด active gateway ใน lab ตรวจช่วง loss และ route หลังเปลี่ยน role รวมถึงเส้นทาง upstream ของ standby คืนระบบและตรวจ preemption ตามที่ออกแบบ FHRP ไม่แก้ firewall state synchronization หรือ route failover โดยอัตโนมัติทุก design

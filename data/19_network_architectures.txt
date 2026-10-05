@@ -1,0 +1,15 @@
+Network components และ topology architectures
+Router, switch, firewall และ endpoint
+Router เชื่อม IP networks และเลือก next hop ส่วน Layer 2 switch ส่ง Ethernet frames ภายใน VLAN Layer 3 switch ทำทั้ง switching และ routing AP เชื่อม wireless clients กับ LAN Controller จัดการ policy ของอุปกรณ์ ส่วน firewall ตรวจ traffic ตาม policy และ state IPS วิเคราะห์ traffic เพื่อป้องกันพฤติกรรมต้องสงสัย หน้าที่เหล่านี้อาจรวมในอุปกรณ์เดียว แต่ต้องแยกเมื่อวิเคราะห์ปัญหา
+
+Two-tier และ three-tier campus
+Three-tier แยก access สำหรับ endpoints, distribution สำหรับรวม uplink/policy และ core สำหรับ backbone Two-tier หรือ collapsed core รวม distribution/core เหมาะกับขนาดที่ไม่จำเป็นต้องแยกชั้น เมื่อ access switch หนึ่งเสียควรตรวจขอบเขตผลกระทบก่อนสรุปว่า core เสีย ดู redundancy และ single point of failure ของ power, uplink และ gateway
+
+Spine-leaf และ traffic direction
+Spine-leaf ให้ leaf เชื่อมต่อ spine หลายตัวเพื่อมีเส้นทางใน fabric ที่สม่ำเสมอ East-west traffic คือระหว่าง workloads ส่วน north-south คือเข้าออกระบบ รูปแบบนี้ไม่แปลว่าทุกลิงก์ต้องใช้ STP แบบ LAN เดิม ต้องตรวจว่า underlay เป็น routed หรือ switched และ control plane ทำงานอย่างไร
+
+WAN, SOHO และขอบเขตบริการ
+WAN เชื่อมสถานที่ผ่านบริการผู้ให้บริการ; SOHO มักรวม router, switch, AP และ NAT ในกล่องเดียว แยก LAN failure จาก WAN circuit โดยทดสอบถึง gateway และ handoff ถ้าเครื่องทั้ง office ใช้ไม่ได้ให้ดูอุปกรณ์ร่วมและ service status ก่อนเปลี่ยนค่าที่ client อย่าใช้ความสำเร็จของ Wi-Fi association เป็นหลักฐานว่า WAN ใช้ได้
+
+On-premises และ cloud
+On-premises อยู่ในสถานที่องค์กร ส่วน cloud มี network controls ของผู้ให้บริการและองค์กรร่วมกัน ต้องดู subnet, route table, security policy และ connectivity ไป cloud เมื่อ service ที่ cloud ไม่ตอบ ให้ตรวจ DNS, TCP connection และ route กลับ การออกแบบ topology ช่วยระบุจุดที่ควรเก็บ log ไม่ใช่ข้อพิสูจน์ว่าต้องเสียที่ชั้นใด

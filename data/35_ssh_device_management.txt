@@ -1,0 +1,15 @@
+SSH Console และ Management Access
+Console กับ remote management
+Console ให้เข้าถึงอุปกรณ์โดยตรงตามสิทธิ์และช่วย recover เมื่อ remote path เสีย SSH เข้ารหัส session ส่วน Telnet ไม่เข้ารหัสข้อมูล login จึงควรใช้ SSH ตาม policy HTTPS สำหรับ GUI ต้องตรวจ TLS certificate และสิทธิ์ client การที่ data plane ทำงานไม่ได้ยืนยัน management service พร้อม
+
+Cisco IOS SSH lab prerequisites
+ต้องมี hostname, domainname และ keypair ตาม platform เช่น crypto key generate rsa แล้วเปิด SSHversion2 เมื่อรองรับ กำหนด local user หรือ AAA และ VTYmethod ให้ถูกต้อง ขนาด key กับ syntax ตรวจรุ่นจริง ตัวอย่างไม่ควรมี password จริงในเอกสาร ใช้ console สำรองก่อนปรับ authentication
+
+VTY restrictions
+บน line vty เลือก transport input ssh เพื่อจำกัด protocol และ login local เมื่อใช้ local database Management ACL ควรจำกัด source ที่ได้รับอนุญาต หาก session ถูกปฏิเสธดู sourceIP ที่อุปกรณ์เห็นหลัง NAT, ACLdirection และจำนวน VTYsessions อย่าเปิด Telnet แทนเพื่อกลบปัญหา
+
+Authentication versus reachability
+ถ้า timeout ให้ดู route,interface,port และ ACL ถ้า connect ได้แต่ loginfail ให้ดู user, key,AAA และ log หาก hostkeywarning ต้องตรวจว่าเป็นการเปลี่ยนอุปกรณ์จริง ไม่ข้าม warning โดยไม่ตรวจ identity เก็บข้อมูลข้อผิดพลาดโดยไม่แสดง credential
+
+Management VRF และ out-of-band
+Management VRF หรือเครือข่าย out-of-band อาจมี routingtable แยกจาก production เช็ก next hop และ service binding ใน VRF นั้น การ ping จาก default VRF ผ่านไม่ได้ยืนยันว่า SSH จาก managementnetwork ผ่าน หลังแก้ลอง session ใหม่พร้อมรักษา session เดิมจน verify สำเร็จ

@@ -1,0 +1,15 @@
+Ansible Terraform และ Configuration Management
+เหตุผลของ configuration management
+จัดการ intendedconfiguration ให้สม่ำเสมอผ่าน automation ลดงานซ้ำและตรวจ drift ได้ แต่ automation ที่ผิดอาจกระทบหลาย devices พร้อมกัน จึงต้องมี inventory,permissions,validation และ rollback ไม่ถือว่าคำสั่งอัตโนมัติปลอดภัยกว่าคำสั่ง manual โดยตัวมันเอง
+
+Ansible concepts
+Ansible ใช้ inventory,playbooks,tasks และ modules เพื่อสั่งงานระบบ การเชื่อมต่อ network devices และรูปแบบ configuration ขึ้นกับ module/platform Playbooks มักเขียน YAML และมี variables ไม่ใส่ password จริงใน inventory สาธารณะ ตรวจ modulecapabilities ก่อนใช้ checkmode เพราะบางงานไม่รองรับ dry-run ครบ
+
+Terraform concepts
+Terraform ใช้ configuration อธิบาย resources และสร้าง plan ก่อน apply ตาม provider State ติดตาม resource ที่ managed และอาจมี sensitivevalues ต้องเก็บ state ด้วยสิทธิ์ที่เหมาะสม ไม่ commitstate ที่มี secrets Plan ที่มี destroy ต้อง review ผลกระทบไม่ apply เพียงเพราะ syntax ผ่าน
+
+Idempotency และ drift
+Idempotency หมายถึงทำ operation ซ้ำแล้วไม่เปลี่ยนผลเมื่ออยู่ desiredstate ตาม contract ไม่ใช่ทุก task หรือ APIidempotent Drift คือ actualstate ต่างจาก intendedstate ตรวจว่าการแก้ manual จะถูก automation เขียนทับหรือไม่ก่อน troubleshoot
+
+Safe operational workflow
+เริ่ม read-onlyinventory และ backup ที่ redactsecret แบ่ง change เป็นกลุ่มเล็ก ทดสอบ lab/reviewplan แล้ว monitor หลัง apply เก็บ audit ว่าใครเปลี่ยนอะไรเมื่อไร เมื่อ failure ให้หยุดวงกว้างและใช้ rollback ที่รู้ผล ไม่เพิ่ม retry ไม่จำกัดเพื่อให้ทุก device ดูเหมือน success

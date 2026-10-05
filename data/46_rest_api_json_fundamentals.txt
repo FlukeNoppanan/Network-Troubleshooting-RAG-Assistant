@@ -1,0 +1,15 @@
+REST API CRUD HTTP Verbs และ JSON สำหรับ Network Automation
+REST resources และ methods
+REST-basedAPI ใช้ resourceURLs กับ HTTPmethods GET อ่าน,POST มักสร้างหรือสั่ง operation,PUT มักแทน representation,PATCH แก้บางส่วนและ DELETE ลบตาม APIcontract CRUD คือ create/read/update/delete ซึ่ง mapping จริงต้องดู documentation ไม่ส่ง DELETE เพื่อทดลองว่า API เปิดอยู่หรือไม่
+
+Status codes
+2xx บอก success ตาม code,400 มัก requestinvalid,401authentication ไม่สำเร็จ,403 สิทธิ์ไม่พอ,404resource ไม่พบและ 429ratelimit แยก transportfailure จาก HTTPerror ก่อน retry 404 ของ URL ผิดไม่ใช่หลักฐานว่า deviceoffline และ 200 ก็ต้องตรวจ responsepayload ว่า operation ตามที่ต้องการหรือไม่
+
+API authentication และ secret handling
+API อาจใช้ token,basic หรือ certificate ตามระบบ เก็บ secret ใน secretmanager/config ที่ควบคุมสิทธิ์ ไม่ใส่ token ใน URL ที่ถูก log ง่าย ตรวจ TLS และ hostname ไม่ปิด certificateverification เพราะทำให้ credential เสี่ยงก่อนแก้ trustchain ที่ถูกต้อง
+
+JSON components
+JSONobject ใช้คู่ key/value ใน{}และ array ใน[] String ใช้ doublequotes; number,boolean และ null มีชนิดข้อมูลของตนเอง ตัวอย่าง {"hostname":"R1","enabled":true,"vlans":[10,20]} เป็นข้อมูล ไม่ใช่ command Objectorder ไม่ควรถูกใช้เป็น semantics เมื่อ API ไม่ได้ระบุ ตรวจ type และ requiredfields ก่อนส่ง
+
+Automation validation และ retries
+อ่าน APIversion/schema,validatepayload แล้ว dry-run หรือ testlab ก่อน write เก็บ requestID กับ error ที่ redactsecret GET อาจ retry เมื่อ transient แต่ writeoperation ต้องรู้ idempotency เพื่อไม่สร้างของซ้ำ อย่าถือว่า POST ทุกตัวปลอดภัยต่อ retry และไม่ส่ง configuration change วงกว้างโดยไม่ preview

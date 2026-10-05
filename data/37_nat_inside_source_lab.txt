@@ -1,0 +1,15 @@
+Cisco IOS Inside Source NAT Static Pool และ PAT Lab
+Inside และ outside interfaces
+Inside source NAT แปลง sourceaddress ของ insidehost เมื่อออก outside ใน Cisco IOSlab กำหนด ip nat inside บน LAN และ ip nat outside บน WAN ตาม topology การตั้ง role กลับด้านทำให้ rule ไม่ทำงานตามคาด แต่ต้องตรวจ route กับ ACL ควบคู่ ไม่ถือว่า NAT แทน firewall
+
+Static inside source NAT
+ตัวอย่าง ip nat inside source static 192.168.10.10 203.0.113.10mapinside local กับ inside global แบบคงที่ Globaladdress ต้องถูก route มาที่ NATrouter และ servicepolicy ต้องอนุญาต ใช้ address สำหรับเอกสารใน lab เท่านั้น ไม่ copypublicaddress นี้ลงระบบจริง
+
+Dynamic pool และ ACL matching
+Dynamic NAT เลือก globaladdress จาก pool ตาม sourceACL ที่ match ต้องตรวจ mask และขนาด pool เทียบ concurrenttranslations ถ้า pool หมดอาจไม่มี translation ใหม่ทั้งที่ existingflows ทำงาน SourceACL สำหรับ NAT ใช้เลือก traffic ไม่ได้แปลว่าเป็น securitypermit บน interface เสมอ
+
+PAT overload
+PAT ใช้ port เพื่อให้หลาย insidehosts แชร์ globaladdress ตัวอย่าง ip nat inside source list 1 interface GigabitEthernet0/1 overload ใช้ interfaceaddress ตาม lab ต้องตรวจ ACL1 และ inside/outside ครบ หาก port/sessionresource หมดให้ดู counter กับจำนวน flows ไม่ล้าง translation ทั้งหมดโดยไม่ประเมินผล
+
+Verification
+ใช้ show ip nat translations และ show ip nat statistics ตรวจ flow ที่มี source/destination จริง เปรียบเทียบ captureinside กับ outside และ replypath ไม่มี translation ให้ดู match/role/path มี translation แต่ไม่มี reply ให้ดู upstream และ filter ทดสอบใหม่ด้วย flow ใหม่เพราะ state เดิมอาจค้างค่าเก่า

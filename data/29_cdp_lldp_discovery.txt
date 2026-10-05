@@ -1,0 +1,15 @@
+CDP LLDP และ Neighbor Discovery ที่ Layer 2
+CDP กับ LLDP
+Cisco Discovery Protocol เป็นกลไก discovery ของ Cisco ส่วน LLDP เป็นมาตรฐานสำหรับบอกข้อมูล neighbor บนลิงก์ Ethernet ข้อมูลเช่น device ID, local/remote port และ capabilities ช่วยตรวจ cabling ทั้งสองไม่ใช่ routing protocols และไม่ใช้แทน ARP หรือ IPv6 Neighbor Discovery
+
+Cisco IOS verification
+ใช้ show cdp neighbors detail หรือ show lldp neighbors detail เมื่อเปิด feature และรุ่นรองรับ ตรวจ local interface กับ remote port เทียบแผน cabling ก่อนแก้ VLAN หาก description บน interface ผิดแต่ neighbor ข้อมูลถูก ให้แก้เอกสารหลังยืนยัน ไม่สลับสายเพราะเชื่อ description อย่างเดียว
+
+Neighbor ไม่แสดง
+อาจเพราะ protocol ถูกปิด, peer ไม่รองรับ, interface down หรือ policy ไม่อนุญาต ดู enable state ทั้งสองฝั่งและเลือก CDP/LLDP ตาม peer การไม่มี neighbor ไม่พิสูจน์ว่า IP connectivity เสีย เพราะปลายทางอาจไม่ส่ง discovery โดยตั้งใจ
+
+TTL และ stale information
+Discovery data มี hold time/TTL Entry เก่าอาจยังอยู่หลังถอดสายชั่วคราว ตรวจ timestamp และ interface state ร่วมด้วย ถ้าลิงก์ flap ให้เก็บ log และ counter ไม่ใช้ discovery snapshot ครั้งเดียวเป็นข้อพิสูจน์ topology ปัจจุบัน
+
+Security และ LLDP-MED
+ข้อมูล discovery อาจเปิดเผยชื่อ/รุ่น/port ของอุปกรณ์ จึงควรเปิดเฉพาะขอบเขตที่ policy อนุญาต LLDP-MED ช่วยแจ้งข้อมูลเกี่ยวกับ voice/network policy แก่ endpoint ที่รองรับ แต่ไม่ยืนยันว่าโทรศัพท์ได้รับ DHCP หรือ QoS ถูกต้อง ต้องตรวจบริการจริงต่อ

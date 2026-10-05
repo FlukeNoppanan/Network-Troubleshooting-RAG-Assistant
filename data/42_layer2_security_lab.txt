@@ -1,0 +1,15 @@
+Layer 2 Security DHCP Snooping DAI และ Port Security Lab
+DHCP snooping trust boundary
+เปิด DHCPsnooping ตาม VLAN ที่ออกแบบและ trust เฉพาะ port ที่ serverreply ควรผ่าน Client ports ควร untrusted ตาม policy หาก trust ผิด portrogueDHCP อาจตอบได้ แต่ถ้า uplink จริงไม่ trusted อาจ blockserver ที่ถูกต้อง จึงตรวจ topology ก่อนเปิด feature
+
+Binding table และ DAI
+DHCP snooping binding เชื่อม MAC,IP,VLAN และ port ที่ได้ lease DynamicARPInspection ตรวจ ARP ตาม bindings/policy Static IP host อาจไม่มี binding จึงต้องมี approvedexception หรือ ARPACL ตาม platform ไม่ปิด DAI ทั้ง VLAN เพื่อทำให้ host เดียวผ่าน
+
+Port security learning
+Portsecurity จำกัด MAC ที่ accessport อนุญาตและอาจมี static,dynamic หรือ stickylearning ตาม feature StickyMAC อาจคงใน runningconfig และ save ไป startup ได้ ต้องตรวจเมื่อเปลี่ยนเครื่องหรือ IPphone ต่อ PC ว่าจำนวน MAC ที่อนุญาตครอบ design
+
+Violation modes
+Violation อาจ drop,log หรือ shutdown ตาม mode และ platform ตรวจ counter กับ err-disablecause แทนเดาว่าทุก portdown เกิดจากสายเสีย หากมี switch ต่อ hostport ให้ตรวจ BPDUprotection และ topology ไม่ recoverport ซ้ำโดยไม่แก้สาเหตุ
+
+Verify security feature changes
+Cisco IOS ใช้ show ip dhcp snooping binding, show ip arp inspection และ show port-security interface ตามรุ่น ก่อน enable เก็บ leases และ staticIPinventory แล้วทดสอบ client ที่ใช้ได้,client ที่ควรถูก deny และ failoverpath เตรียม rollback เพราะ trust/inspect ผิดอาจตัดทั้ง LAN

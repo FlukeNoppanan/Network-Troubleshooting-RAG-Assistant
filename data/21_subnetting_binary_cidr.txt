@@ -1,0 +1,15 @@
+IPv4 Subnetting แบบ Binary และ CIDR
+IPv4 network bits กับ host bits
+IPv4 มี 32 bits /24 หมายถึง prefix 24 bits และ host 8 bits Mask 255.255.255.0 แปลงเป็น binary โดยส่วน network เป็นหนึ่งและ host เป็นศูนย์ หา network address ด้วย bitwise AND ระหว่าง IP กับ mask สอง address ที่ขึ้นต้นคล้ายกันไม่จำเป็นต้องอยู่ subnet เดียวกัน ให้คำนวณ prefix จริง
+
+Block size และตัวอย่าง /27
+/27 เท่ากับ 255.255.255.224 มี block size 32 ใน octet สุดท้าย Network เริ่มที่ .0, .32, .64 และต่อไป ตัวอย่าง 192.168.50.77/27 อยู่ network .64 และ broadcast .95 จึงมี host .65 ถึง .94 อย่าแจก network หรือ broadcast address ให้ host ใน subnet ทั่วไป
+
+คำนวณจำนวน hosts
+สำหรับ subnet IPv4 ปกติ host usable คือ 2^(32-prefix)-2 /26 จึงมี 62 hosts และ /28 มี 14 hosts แต่ /31 ใช้สำหรับ point-to-point ตามการรองรับของอุปกรณ์โดยมีสอง endpoints และ /32 เป็น host route จึงไม่ใช้สูตรลบสองกับทุก prefix ตรวจชนิดลิงก์ก่อนตัดสินว่าขนาด subnet ถูกต้อง
+
+Private และ public addressing
+Private IPv4 ranges คือ 10.0.0.0/8, 172.16.0.0/12 และ 192.168.0.0/16 ไม่ใช่ทุก address ที่เริ่ม 172 จะ private Link-local 169.254.0.0/16 และ loopback 127.0.0.0/8 มีหน้าที่ต่างกัน การใช้ private IP ไม่ได้เข้ารหัสและไม่แทน firewall ต้องมีการจัดสรรและ routing ที่เหมาะสม
+
+ตรวจ mask และ gateway
+บันทึก IP/mask/gateway จาก client แล้วคำนวณ subnet ให้แน่ใจว่า gateway บน Ethernet LAN ปกติเข้าถึง on-link ได้ ถ้า mask กว้างเกินอาจ ARP หาปลายทางไกลแทนส่ง router ถ้า mask แคบเกินอาจส่งผ่าน gateway โดยไม่จำเป็น ทดสอบทั้ง subnet boundary และ route ไม่ดูแค่ ping ครั้งเดียว

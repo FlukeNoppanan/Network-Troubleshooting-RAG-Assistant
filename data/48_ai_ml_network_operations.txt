@@ -1,0 +1,15 @@
+AI Machine Learning และ Cloud-managed Network Operations
+Predictive กับ generative AI
+PredictiveAI วิเคราะห์ข้อมูลเพื่อคาดการณ์หรือจัดประเภท เช่น anomalydetection ของ interfaceutilization GenerativeAI สร้างข้อความหรือ configurationdraft ไม่ถือว่าข้อเสนอ AI เป็นหลักฐานว่า device มีปัญหาจริง ต้องเทียบ telemetry/log และ networkpolicy ก่อนดำเนินการ
+
+Training inference และข้อมูลคุณภาพ
+Machinelearning เรียน pattern จาก trainingdata แล้วใช้ inference กับข้อมูลใหม่ หาก data ผิด,ขาดหรือ distribution เปลี่ยนผลอาจคลาดเคลื่อน Trafficburst ที่ปกติในช่วง backup อาจถูกมองผิดเป็น anomaly ต้องมี baseline,labels และ evaluation ที่สอดคล้องกับงาน
+
+Network monitoring use cases
+AI ช่วยจัดกลุ่ม alerts,สรุป log หรือคาด capacity ได้ แต่ alertcorrelation ไม่พิสูจน์ causation เก็บ timestamps ที่ sync กันและแยก observation จาก hypothesis ผู้ดูแลควรทดสอบสมมติฐานกับ packetcapture/counters ก่อนสั่งแก้ configuration
+
+Cloud-managed network
+Managementservice บน cloud ช่วย inventory และ policy จากศูนย์กลาง แต่ datapath ของ AP/switch ขึ้นกับ architecture หาก managementoffline ให้ตรวจ Internet,DNS,TLS และ devicecloudregistration ตาม platform เก็บ configuration/state ที่จำเป็นและรู้ localoperationmode ขณะ cloud ไม่พร้อม
+
+AI suggestions และ governance
+อย่าส่ง configuration ที่มี secrets หรือข้อมูลลูกค้าเข้า AIservice โดยไม่มีสิทธิ์ Reviewcommands กับ platform และ rollback ก่อนใช้จริง Automatedremediation ต้องกำหนด scope/approval ตามผลกระทบ RAG ใช้ retrievedevidence ช่วยตอบอย่างตรวจสอบได้แต่ยังต้องอ่าน sources ไม่ถือว่ามี citation แล้วรับประกันทุก fact

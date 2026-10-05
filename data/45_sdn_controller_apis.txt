@@ -1,0 +1,15 @@
+SDN Controller-based Networking Underlay และ Overlay
+Control plane กับ data plane
+Control plane สร้างข้อมูลตัดสินใจเช่น routes/topology ส่วน data plane ส่ง packet ตามข้อมูลนั้น Management plane ใช้ตั้งค่า/monitor Traditionaldevices มักมีทั้งสามหน้าที่ในแต่ละเครื่อง SDN/controller-basednetwork อาจรวมบาง control/policyfunctions ใน controller แต่ไม่ได้แปลว่า controller ส่งทุก packet เอง
+
+Underlay และ overlay
+Underlay คือ network พื้นฐานที่ต้องมี reachability ส่วน overlay สร้าง logicalnetwork เหนือ underlay ผ่าน encapsulation ตาม technology Fabric คือองค์ประกอบที่ทำงานร่วมกัน เมื่อ overlayservice เสียให้ตรวจ underlayroute/MTU ก่อนและตรวจ overlaymapping ต่อ ไม่ใช้ผล pingunderlay ยืนยัน overlay ครบทุกกรณี
+
+Northbound กับ southbound APIs
+Northbound API ให้ applications/automation สื่อสารกับ controller Southbound API หรือ protocol เชื่อม controller กับ network devices หน้าที่ต่างกันไม่ใช่ protocolport ที่ตายตัวทุกระบบ ตรวจ APIauth,version และ devicecompatibility ก่อนแก้ request
+
+Controller failure และ existing forwarding
+เมื่อ controller ไม่พร้อม data plane บาง design ยัง forward ด้วย state เดิมแต่ตั้ง policy ใหม่ไม่ได้ อีก design อาจมีผลมากกว่า ต้องรู้ failuremode และ redundancy จริง ไม่สรุปว่าทั้ง network ต้องหยุดหรือทำงานปกติทุกกรณีจาก statuscontroller อย่างเดียว
+
+Traditional versus controller-based operations
+แบบ controller ช่วย policyconsistency และ automation แต่ต้องควบคุม access,changevalidation และ auditlogs ตรวจ intendedstate กับ actualdeviceconfig และ telemetry หาก device ไม่รับ policy ให้ดู registration,connectivity และ featurelicense ตามระบบ ไม่แก้ทุก device ด้วย manualoverride จน state ไม่ตรงกัน

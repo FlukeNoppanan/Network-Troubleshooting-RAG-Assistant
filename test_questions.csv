@@ -26,3 +26,35 @@ id,question,expected_answer_type,expected_source,notes
 25,802.1X ผ่านแต่ Dynamic ARP Inspection drop ARP ควรตรวจอะไร?,GROUNDED,16_network_security.txt,NAC snooping binding
 26,Mobile Legends ควรเลือกฮีโร่ตัวไหนและออกไอเทมอย่างไร?,NOT_FOUND,,Gaming outside curated network domain
 27,Destination host unreachable ต่างจาก Request timed out อย่างไร และควรตรวจ ICMP ผู้ส่งอย่างไร?,GROUNDED,12_tcp_udp_icmp.txt,ICMP errors and verification
+28,Two-tier collapsed core ต่างจาก three-tier และ spine-leaf อย่างไร?,GROUNDED,19_network_architectures.txt,CCNA expansion regression
+29,AP reboot บ่อย PoE power budget ไม่พอควรตรวจอะไร?,GROUNDED,20_cabling_transceivers_poe.txt,CCNA expansion regression
+30,192.168.50.77/27 มี network broadcast และ usable hosts เท่าไร?,GROUNDED,21_subnetting_binary_cidr.txt,CCNA expansion regression
+31,จัด VLSM ใน 192.168.40.0/24 สำหรับ 60 30 และ 12 hosts อย่างไร?,GROUNDED,22_vlsm_summarization.txt,CCNA expansion regression
+32,Longest prefix match ต่างจาก administrative distance และ metric อย่างไร?,GROUNDED,23_routing_table_forwarding.txt,CCNA expansion regression
+33,Floating static route ทำงานอย่างไรและต้องตรวจ backup return route หรือไม่?,GROUNDED,24_static_default_floating_routes.txt,CCNA expansion regression
+34,IPv6 static route ที่ใช้ link-local next hop ทำไมต้องระบุ exit interface?,GROUNDED,25_ipv6_addresses_static_routes.txt,CCNA expansion regression
+35,OSPF process ID ต้องตรงกันไหม และ passive-interface โฆษณา LAN ได้หรือไม่?,GROUNDED,26_single_area_ospfv2_lab.txt,CCNA expansion regression
+36,FHRP virtual IP ต่างจาก physical router IP และ tracking ช่วยอย่างไร?,GROUNDED,27_first_hop_redundancy.txt,CCNA expansion regression
+37,LACP active กับ passive ต่างกันอย่างไร ทำไม passive-passive ไม่ขึ้น EtherChannel?,GROUNDED,28_etherchannel_lacp.txt,CCNA expansion regression
+38,CDP และ LLDP ใช้ตรวจสายต่อผิดได้อย่างไรและต่างจาก ARP อย่างไร?,GROUNDED,29_cdp_lldp_discovery.txt,CCNA expansion regression
+39,Router-on-a-stick subinterface ต้องตั้ง encapsulation dot1Q และ trunk อย่างไร?,GROUNDED,30_intervlan_svi_router_on_stick.txt,CCNA expansion regression
+40,Root Guard Loop Guard และ BPDU Filter ต่างกันอย่างไร?,GROUNDED,31_spanning_tree_protection.txt,CCNA expansion regression
+41,CAPWAP กับ WLC ทำงานอย่างไรและ Local mode ต่างจาก FlexConnect อย่างไร?,GROUNDED,32_wireless_controller_architecture.txt,CCNA expansion regression
+42,WPA2-Personal WPA2-Enterprise และ WPA3 SAE ต่างกันอย่างไร?,GROUNDED,33_wireless_security_wpa.txt,CCNA expansion regression
+43,Cisco IOS running-config กับ startup-config ต่างกันและ save อย่างไร?,GROUNDED,34_cisco_ios_basics.txt,CCNA expansion regression
+44,Cisco IOS ตั้ง SSH บน VTY ต้องตรวจ login local และ transport input ssh อย่างไร?,GROUNDED,35_ssh_device_management.txt,CCNA expansion regression
+45,Wildcard mask ใน ACL ต่างจาก subnet mask และ inbound outbound อย่างไร?,GROUNDED,36_standard_extended_acls_lab.txt,CCNA expansion regression
+46,Cisco IOS inside source NAT ต้องกำหนด ip nat inside outside และ overload อย่างไร?,GROUNDED,37_nat_inside_source_lab.txt,CCNA expansion regression
+47,Cisco IOS ip helper-address ควรวางบน interface ไหนและ giaddr ใช้เลือก scope อย่างไร?,GROUNDED,38_dhcp_client_relay_lab.txt,CCNA expansion regression
+48,Syslog severity 0 ถึง 7 หมายถึงอะไร และ NTP กับ SNMP ช่วยตรวจ incident อย่างไร?,GROUNDED,39_ntp_snmp_syslog.txt,CCNA expansion regression
+49,QoS policing ต่างจาก shaping และ marking ต่างจาก classification อย่างไร?,GROUNDED,40_qos_classification_queuing.txt,CCNA expansion regression
+50,AAA authentication authorization accounting ต่างกันและ RADIUS กับ TACACS+ ใช้เมื่อไร?,GROUNDED,41_aaa_radius_tacacs.txt,CCNA expansion regression
+51,DHCP snooping binding ใช้กับ DAI และ static IP host อย่างไร?,GROUNDED,42_layer2_security_lab.txt,CCNA expansion regression
+52,Threat vulnerability exploit และ mitigation ต่างกันอย่างไรใน network security?,GROUNDED,43_security_fundamentals_policy.txt,CCNA expansion regression
+53,VRF แยก routing table อย่างไรและ virtual switch portgroup VLAN เกี่ยวข้องกับ VM อย่างไร?,GROUNDED,44_virtualization_vrf_cloud.txt,CCNA expansion regression
+54,SDN control plane data plane และ northbound southbound API ต่างกันอย่างไร?,GROUNDED,45_sdn_controller_apis.txt,CCNA expansion regression
+55,REST GET POST PUT PATCH DELETE และ JSON object array ใช้ต่างกันอย่างไร?,GROUNDED,46_rest_api_json_fundamentals.txt,CCNA expansion regression
+56,Ansible กับ Terraform ต่างกันอย่างไรและ idempotency drift หมายถึงอะไร?,GROUNDED,47_ansible_terraform_config_management.txt,CCNA expansion regression
+57,Predictive AI กับ generative AI ใน network operations ต่างกันและตรวจคำแนะนำอย่างไร?,GROUNDED,48_ai_ml_network_operations.txt,CCNA expansion regression
+58,FTP login ได้แต่ directory listing ค้าง ต่างจาก TFTP อย่างไรและควรตรวจ passive mode อะไร?,GROUNDED,17_network_services.txt,File transfer control and data path
+59,Cisco IOS local username secret และ enable secret ใช้ควบคุมสิทธิ์อย่างไร?,GROUNDED,34_cisco_ios_basics.txt,Local access control

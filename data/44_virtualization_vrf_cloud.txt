@@ -1,0 +1,15 @@
+Virtualization Containers VRF และ Cloud Networking
+Server virtualization
+Hypervisor แยก guestVMs ที่มีระบบปฏิบัติการของตนเองบน hardware ร่วมกัน Virtual switch เชื่อม vNIC กับ portgroup และ physicaluplink เมื่อ VM ใช้ network ไม่ได้ให้ตรวจ vNICconnected,port group VLAN และ physicaltrunk ก่อนสรุปว่า router ผิด
+
+Containers ใน network fundamentals
+Container แยก workload โดยใช้ kernel ร่วมกับ host ตาม runtime มี networknamespace และ virtualinterfaces ตาม design ความรู้พื้นฐานนี้อธิบาย networkisolation ไม่ได้ให้ขั้นตอน deploy ระบบ orchestration ต้องตรวจ hostroute,bridge และ policy ที่ workload ใช้งานจริง
+
+VRF แยก routing tables
+Virtual Routing and Forwarding ทำให้ device มี routingtables หลายชุด การมี route ใน default VRF ไม่ยืนยันว่า route ใน management/customerVRF มีอยู่ ต้องใช้ show/diagnostic ที่ระบุ VRF ตาม platform Routeleaking ต้องออกแบบและควบคุม policy ไม่ใส่ route ข้าม VRF เพื่อกลบ addressing ที่ไม่เข้าใจ
+
+Cloud route และ security controls
+Cloudworkload อยู่ใน subnet ที่ใช้ routetable/securitycontrols ของ platform อาจมี virtualgateway,NAT หรือ tunnel ไป on-premises ตรวจ sharedresponsibility และ effectivepolicies เมื่อ connect ไม่ได้ให้แยก DNS,TCP,route และ authorization ตามลำดับ ไม่สรุปว่าข้อมูลอยู่ cloud แล้ว provider ต้องแก้ทุกอย่าง
+
+Troubleshoot virtual versus physical path
+เทียบ capture ใน guest,host และ uplink ตามสิทธิ์ Checksumoffload อาจทำให้ hostcapture ดูผิด ตรวจ MAClearning,VLANtagging และ return route ถ้าเสียเฉพาะ VM หนึ่งตัวดู vNIC/guestpolicy ถ้าทั้ง host เสียดู sharedbridge/uplink ไม่ reset ทั้ง hypervisor โดยไม่มีหลักฐาน

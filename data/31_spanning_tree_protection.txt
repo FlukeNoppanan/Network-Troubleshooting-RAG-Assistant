@@ -1,0 +1,15 @@
+STP Protection Root Guard Loop Guard และ BPDU Filter
+Root Guard
+Root Guard ป้องกัน port ที่กำหนดไม่ให้รับ superior BPDU แล้วเปลี่ยน root topology ในทิศทางที่ไม่ต้องการ ถ้า port เข้าสถานะ root-inconsistent ให้ตรวจ peer priority กับตำแหน่ง root ตาม design ไม่ลด root guard เพียงเพื่อให้ portforwarding
+
+Loop Guard
+Loop Guard ช่วยป้องกันบาง port เปลี่ยนไป forwarding เมื่อหยุดได้รับ BPDU ที่ควรมี เช่นปัญหา unidirectional link ไม่ใช่สิ่งเดียวกับ BPDU Guard และไม่ได้แทนการตรวจ optic/cabling ดู loop-inconsistent และ BPDU reception ก่อนยืนยันสาเหตุ
+
+BPDU Guard กับ PortFast
+BPDU Guard เหมาะกับ edgeport ที่ไม่ควรมี switch ส่ง BPDU ส่วน PortFast ลดเวลาเริ่ม forwarding ของ hostport ใช้ตาม topology ไม่ใช่เปิดทุก uplink หาก porterr-disabled ให้ตรวจอุปกรณ์ที่ต่อจริงก่อน recover และเก็บ shutdown reason
+
+BPDU Filter และความเสี่ยง
+BPDU Filter อาจหยุดการรับ/ส่ง BPDU ตามวิธีตั้งและ platform ทำให้ STP มองไม่เห็น loop ได้ อย่าใช้ filter เพื่อปิด warning โดยไม่เข้าใจผลของแต่ละ mode ตรวจ documentation ของรุ่นและ design ก่อนตั้ง feature นี้ไม่เท่ากับ guard
+
+ตรวจ Rapid PVST+ topology
+Rapid PVST+มี STP instance แยกตาม VLAN ตรวจ root, roles และ states ของ VLAN ที่มีปัญหา ผลของ VLAN หนึ่งไม่แทนทุก VLAN ใช้ show spanning-tree และ log topology changes เมื่อรองรับ จัด rootprimary/secondary ตาม design และทดสอบ failover โดยรักษาการป้องกัน loop

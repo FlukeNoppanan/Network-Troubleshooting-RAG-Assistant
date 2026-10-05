@@ -1,0 +1,15 @@
+DHCP Client Relay Configuration และ Scope Verification
+DHCP client บน router
+Cisco IOSinterface ที่รองรับสามารถใช้ ip address dhcp เพื่อรับ IPv4address ตรวจ lease และ default route ที่ได้รับตาม platform ไม่ถือว่า interfaceup แปลว่า DHCP สำเร็จ ต้องดู address จริงและ options เช่น DNS หาก uplink ได้รับ privateIP จาก upstream อาจมี NAT อีกชั้น
+
+Relay helper address
+Clientbroadcast ไม่ผ่าน router ตามปกติ จึงกำหนด ip helper-address บน interface ที่รับ broadcast จาก client ตัวอย่าง interfaceVlan20 แล้ว ip helper-address192.0.2.50 ชี้ serverlab คำสั่งนี้บนบาง platform อาจ relayUDPservices อื่นด้วย ต้องตรวจ feature/defaultforwarding และ policy ไม่เดาว่า relay เฉพาะ DHCP
+
+Giaddr กับ scope selection
+Relay ระบุ subnet ต้นทางให้ server ใช้เลือก scope Scope ต้องตรง clientLAN รวม mask,gateway และ pool Server กับ relay ต้อง route ไปกลับได้ ตรวจ serverlog และ relayinterfaceaddress เมื่อ client ผิด VLAN แล้วได้รับ scope ที่ไม่คาด
+
+DHCP exhaustion และ exclusions
+Pool เต็มทำให้ client ใหม่ไม่ได้ lease แม้เครื่องเก่าใช้งานได้ ตรวจ activeleases,reservations,excludedaddresses และ lease duration อย่าลบ leases ทั้งระบบเพราะจะสร้าง IPconflict หรือขัดบริการ ต้องหาว่า allocation ผิดหรือ hosts เพิ่มจริงและขยาย pool ตาม addressplan
+
+Verify offer และ ACK path
+จับ DORA ที่ client กับ relay ตรวจ Discover ถึง server และ Offer/ACK กลับถึง client หาก relayconfigured ถูกแต่ไม่มี reply ให้ดู route,ACL และ serverlisteninterface เก็บ transactionID กับ timestamps เพื่อเทียบ flow ไม่สุ่มตั้ง staticIP ใน pool เพื่อทำให้เครื่องเดียวใช้ได้

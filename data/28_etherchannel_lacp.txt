@@ -1,0 +1,15 @@
+EtherChannel Port-channel และ LACP
+EtherChannel รวม links
+EtherChannel รวม physical links เป็น logical port-channel เพื่อเพิ่ม aggregate capacity และ redundancy Traffic flow หนึ่งมักถูกเลือก physical member ตาม hash ไม่ใช่กระจายทุก packet ไปทุกสาย จึงไม่รับประกัน single flow ได้ bandwidth รวมทุก member ตรวจ load-balancing method และ traffic distribution
+
+LACP active กับ passive
+LACP เป็นมาตรฐาน negotiation Active ส่งการเจรจา ส่วน passive รอ peer ดังนั้น active-active หรือ active-passive สร้างได้ตามเงื่อนไข ส่วน passive-passive ไม่เริ่ม negotiation ตรวจ operational state ไม่ดูแต่ mode ใน configuration การใช้ static on ต้องออกแบบทั้งสองฝั่งตรงกันและเสี่ยง loop หากผิด
+
+Member consistency
+สมาชิกควรมี speed/duplex, access/trunk mode, VLAN และ allowed/native VLAN ที่สอดคล้องตาม platform Port ที่ mismatch อาจถูก suspended หรือไม่เข้ากลุ่ม ตรวจทั้ง port-channel และ member ไม่แก้เฉพาะ interface หนึ่งโดยมองข้าม logical configuration
+
+Cisco IOS lab และ verification
+ตัวอย่าง interface range GigabitEthernet0/1 - 2 แล้ว channel-group 1 mode active เป็น LACP lab ใช้ show etherchannel summary และ show lacp neighbor ตรวจว่า member bundled จริง ชื่อ interface, จำนวน links และ feature support ต้องตรง hardware ห้ามใช้ตัวอย่างโดยไม่ตรวจ peer
+
+Troubleshoot port-channel down
+เก็บ summary, member status และ log ตรวจ partner identity, negotiation, link errors และ VLAN consistency หากบาง flow loss เฉพาะช่วง member หนึ่งทำงานให้ตรวจสาย/optic ของ member นั้น ลิงก์ที่ไม่ได้ bundle อาจถูก STP block โดยปกติ ต้องแก้การรวมให้ถูก ไม่ปิด STP เพื่อเปิดทุกสาย

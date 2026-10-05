@@ -1,0 +1,15 @@
+QoS Classification Marking Queuing Policing และ Shaping
+QoS เป้าหมายและข้อจำกัด
+Quality of Service จัดการ traffic เมื่อ resources มีข้อจำกัด ไม่สร้าง bandwidth เพิ่ม เป้าหมายอาจเป็น delay,jitter หรือ loss ของ service ที่ไวต่อเวลา แยก congestion จาก physicalerrors ก่อนใช้ QoS ถ้าสาย CRC สูงการตั้ง priority ไม่แก้ packet เสีย
+
+Classification กับ marking
+Classification จัด traffic เข้ากลุ่มตาม IP,protocol หรือข้อมูลที่ policy อนุญาต Marking ใส่ label เช่น DSCP บน IP หรือ CoS ที่ Layer2 Trust boundary กำหนดว่าเชื่อ mark จาก endpoint ใด อย่า trust ทุก client เพราะ host อาจ marktraffic ของตนเป็น priority ผิด policy ต้องสอดคล้องข้าม hops
+
+Queuing และ congestion
+Queue เลือก traffic ที่ส่งก่อนเมื่อ egress แออัด Low-latencyqueue เหมาะกับ traffic ที่กำหนดและต้องจำกัด resource ตาม design หาก queue อื่น starve ให้ดู policy และ offeredload ใช้ queuecounter กับ latency/loss จริง ไม่ตัดสินจากชื่อ class ว่าบริการได้ priority แล้ว
+
+Policing ต่างจาก shaping
+Policing เมื่อ traffic เกิน rate อาจ drop หรือ remark ตาม action ส่วน shaping มัก buffer และส่งให้เรียบตาม rate จึงเพิ่ม delay ได้ Token bucket ช่วยกำหนด burstallowance หาก serviceproviderpolice ที่ handoff การ shape ฝั่งเราตาม contract อาจลด burstloss ต้องตรวจ bandwidth และ platformsupport
+
+Troubleshooting voice หรือ video
+เก็บ delay,jitter,loss และ queue drops ก่อน/หลัง policy ตรวจว่าคลาส matchpackets จริงและ DSCP ไม่ถูก rewrite กลางทาง ไม่เพิ่ม priority ให้ทุก traffic เพราะจะหมดความหมาย QoS ตั้งทั้งเส้นทางตาม bottleneck และทดสอบ application จริง ไม่ใช่ดู ping อย่างเดียว

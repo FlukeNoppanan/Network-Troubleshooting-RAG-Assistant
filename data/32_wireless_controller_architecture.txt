@@ -1,0 +1,15 @@
+Wireless Architectures AP Modes WLC และ CAPWAP
+Autonomous กับ controller-based WLAN
+Autonomous AP ดูแลการตั้งค่าเอง ส่วน controller-based ใช้ WLC จัดการ AP และ WLAN policy ต้องแยก AP management connectivity จาก client data path AP join สำเร็จไม่ได้ยืนยันว่า client VLAN/DHCP ใช้ได้ ระบบ cloud-managed ใช้บริการจัดการแต่ data path ขึ้นกับ design
+
+CAPWAP control และ data
+Lightweight AP อาจใช้ CAPWAP ระหว่าง AP กับ controller ปกติ UDP5246 สำหรับ control และ UDP5247 สำหรับ data ตามรูปแบบที่ใช้ ตรวจ routing, filtering และ MTU ระหว่าง AP-WLC ถ้า AP ไม่ join ให้ตรวจ discovery, reachability, certificate/time และรุ่น software ตาม log ไม่สรุปจาก DHCP ของ client
+
+Local mode กับ FlexConnect
+Local mode มักส่ง client data ผ่าน controller ส่วน FlexConnect อาจ local switch บาง WLAN ตาม policy ตรวจ mode กับ VLAN mapping จริงที่ AP และ WLC เพราะ uplink ที่ใช้ access หรือ trunk ขึ้นกับ data path การต่อ trunk ทุก AP ไม่ใช่คำตอบสำหรับทุก architecture
+
+AP modes อื่น
+Monitor mode เน้นการตรวจ RF/ความปลอดภัย ไม่ใช่ให้บริการ client แบบปกติ Sniffer mode ใช้จับ packet และส่งไป analysis ตาม feature support ก่อนบอก AP เสียให้ตรวจ mode และ SSID ที่เปิดใช้งานจริง
+
+WLAN GUI และการตรวจหลังสร้าง
+ดู SSID, security method, policy profile/VLAN, DHCP path และ QoSprofile ให้ตรง client ทดสอบ association แล้ว authentication, address acquisition และ DNS/service ตามลำดับ หาก AP หลายตัวมีปัญหาให้ดู controller/common uplink หากเสียตัวเดียวให้ดู join log,radio และ cabling ของ AP นั้น

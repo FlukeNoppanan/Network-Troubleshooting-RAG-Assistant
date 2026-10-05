@@ -12,3 +12,15 @@ HTTP มัก TCP 80 และ HTTPS มัก TCP 443 ตรวจ DNS, TCP co
 
 Syslog และ SNMP สำหรับหลักฐาน incident
 Syslog อาจใช้ UDP 514, TCP 514 หรือ TLS 6514 ตาม config หาก log ไม่ถึง collector ให้ตรวจ protocol, destination, source interface และ ACL การส่ง UDP ไม่รับประกัน delivery SNMP polling มัก UDP 161 และ traps มัก UDP 162 ตรวจ version และ authentication ตาม policy ไม่เผย community string ใช้ timestamps ที่ sync กันเมื่อเทียบ log หลายอุปกรณ์ ตรวจทั้ง sender counter และ collector ingestion
+
+TFTP กับ FTP สำหรับโอนไฟล์อุปกรณ์
+TFTP เป็นการโอนไฟล์แบบเรียบง่ายผ่าน UDP ไม่มี authentication หรือ encryption ในตัว เหมาะเฉพาะขอบเขตที่ควบคุมตาม policy การเริ่ม request ไป UDP 69 แต่ transfer ใช้ transfer identifiers/ports ของ session จึงต้องตรวจ firewall ที่รองรับ flow จริง ไม่สรุปว่าเปิด UDP 69 อย่างเดียวจะโอนไฟล์ได้ทุกระบบ
+
+FTP control และ data connections
+FTP ใช้ TCP control connection ปกติ port 21 และมี data connection แยก Active mode ให้ server เริ่ม data connection กลับ client ส่วน passive mode ให้ client เริ่มไป port ที่ server แจ้งผ่าน control ต้องตรวจ mode, firewall, NAT และ passive port range ไม่ใช้ความสำเร็จของ login ยืนยันว่า file transfer ผ่าน
+
+FTP failure หลัง login
+หาก login ได้แต่ directory listing หรือ download ค้าง ให้จับ control/data flow และตรวจ address/port ที่ server แจ้ง โดยเฉพาะหลัง NAT ที่อาจแจ้ง private address ตรวจ server passive settings และ route กลับให้ตรง policy อย่าเปิดทุก port ถาวรเพื่อให้ transfer สำเร็จ
+
+การเก็บ configuration backups
+TFTP/FTP แบบเดิมไม่ปกป้อง credentials หรือ payload ด้วย encryption เลือก protocol ที่เข้ารหัส เช่น SFTP หรือ SCP ตาม platform และ policy เมื่อรองรับ ตรวจ host identity และสิทธิ์ปลายทาง Backup configuration อาจมี secrets จึงต้องคุม access และ retention ไม่ใส่ไฟล์เหล่านั้นใน public repository

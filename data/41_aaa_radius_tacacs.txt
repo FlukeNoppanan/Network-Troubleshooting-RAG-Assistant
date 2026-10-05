@@ -1,0 +1,15 @@
+AAA Authentication Authorization Accounting RADIUS และ TACACS+
+AAA สามหน้าที่
+Authentication ตรวจ identity ว่าเป็นใคร Authorization กำหนดสิทธิ์ทำอะไร Accounting เก็บกิจกรรม/การใช้งาน การ login ผ่านไม่ได้หมายความว่ามีสิทธิ์ทุก command แยกทั้งสามเมื่อตรวจว่าผู้ดูแล login ได้แต่สั่งงานไม่ได้
+
+RADIUS และ TACACS+
+RADIUS พบมากใน networkaccess เช่น 802.1X และ VPN ส่วน TACACS+นิยม deviceadministration และ commandauthorization ทั้งสองต้องมี serverreachability กับ sharedsecret ตาม policy TACACS+ใช้ TCP49; RADIUS deployment ทั่วไปใช้ UDP1812/1813 แต่บางระบบมี legacyports ต้องดู configuredport จริง
+
+Local fallback และ method lists
+AAA methodlist อาจใช้ servergroup และ localfallback แต่ fallbackbehavior ขึ้นกับผลตอบรับกับ platform Serverreject ไม่จำเป็นต้อง fallback เหมือน serverunreachable ตรวจ docs ก่อนออกแบบ break-glass account ใช้ console สำรองก่อนเปลี่ยน AAA เพื่อไม่ lockout
+
+Authentication failures
+หาก timeout ตรวจ route,source interface,ACL และ serveravailability หาก reject ดู identity,password/certificate และ serverpolicy จับ log สองฝั่งโดยไม่เปิดเผย sharedsecret หรือ credential เวลาเครื่องมีผลกับบาง authentication method จึงตรวจ NTP ร่วมด้วย
+
+Authorization และ accounting checks
+Login สำเร็จแต่ commanddeny ให้ดู role/privilege และ commandpolicy ไม่แก้ด้วยการให้ fulladmin ทั้งหมด หาก accounting ไม่ถึง server ให้ตรวจ destination/protocol และ collector อย่าอนุมานว่าไม่มี accountinglog เท่ากับไม่มีการใช้งาน ต้อง verifyeventpath

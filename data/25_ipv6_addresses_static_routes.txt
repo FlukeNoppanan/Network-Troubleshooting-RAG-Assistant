@@ -1,0 +1,15 @@
+IPv6 Address Types EUI-64 และ Static Routing
+IPv6 address types
+Global unicast ใช้ routing ระหว่างเครือข่าย Unique local อยู่ใน fc00::/7 ซึ่งการจัดสรร local ทั่วไปใช้ fd00::/8 Link-local fe80::/10 ใช้บนลิงก์เดียว Multicast ส่งถึงกลุ่มสมาชิกและ anycast ใช้ address เดียวบนหลายจุดให้ routing เลือกเส้นทางที่ใกล้ตาม metric IPv6 ไม่มี broadcast แบบ IPv4
+
+Prefix และ modified EUI-64
+IPv6 LAN มักใช้ /64 และบางระบบสร้าง interface identifier ด้วย modified EUI-64 จาก MAC โดยแทรก fffe และเปลี่ยน U/L bit แต่ไม่ได้แปลว่าทุก IPv6 address มี MAC ฝังอยู่ Privacy และ stable addressing อาจใช้วิธีอื่น ตรวจ address source จริงก่อนใช้ IPv6 คาดเดา MAC ของอุปกรณ์
+
+IPv6 static route ใน Cisco IOS lab
+ตัวอย่าง ipv6 route 2001:db8:20::/64 2001:db8:10::2 เป็น network route หาก next hop เป็น link-local ต้องระบุ exit interface เพื่อบอกลิงก์ เช่น ipv6 route 2001:db8:20::/64 GigabitEthernet0/0 fe80::2 ชื่อ interface เป็นเพียงตัวอย่าง ตรวจ topology และ ND ให้ถึง next hop
+
+Default host และ floating route
+IPv6 default route ใช้ ::/0, host route ใช้ /128 ส่วน floating static ตั้ง distance สูงกว่าหลักตามการรองรับ ตรวจ show ipv6 route ว่าเส้นทาง active ถูกต้อง การมี IPv4 default route ไม่สร้าง IPv6 default route ให้โดยอัตโนมัติ
+
+Troubleshooting IPv6 routed connectivity
+ใช้ ip -6 addr, ip -6 route และ ip -6 neigh บน Linux หรือเครื่องมือ IPv6 ของระบบ ตรวจ ICMPv6 ND/Packet Too Big, ACL, prefix และ return route หาก ping link-local ต้องระบุ interface เมื่อเครื่องมีหลายลิงก์ ใช้ documentation prefix 2001:db8::/32 สำหรับ lab ไม่ใช้เป็น global address ใน production

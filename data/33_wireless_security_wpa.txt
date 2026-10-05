@@ -1,0 +1,15 @@
+Wireless Security WPA2 WPA3 และ WLAN PSK
+WPA2-Personal กับ Enterprise
+WPA2-Personal ใช้ pre-shared key ส่วน Enterprise ใช้ 802.1X/EAP ร่วม authentication infrastructure เช่น RADIUS ต้องตั้ง SSID และ security mode ให้ client รองรับ PSK เป็น credential จึงห้ามใส่ใน log หรือ knowledge base การเปลี่ยน PSK กระทบ client ทุกตัวที่ใช้ key เดียว
+
+WPA3 และ SAE
+WPA3-Personal ใช้ SAE แทน PSKauthentication แบบเดิมในการเจรจา แต่ client/AP ต้องรองรับ security settings ที่สอดคล้องกัน Transition mode ช่วยรองรับ client เก่าบางกรณีและต้องพิจารณา policy Protected Management Frames มีข้อกำหนดตาม mode ไม่ลด security เพียงเพราะ client เก่าต่อไม่ได้
+
+Encryption กับ authentication
+Encryption ป้องกัน payload บน wireless link ส่วน authentication ตรวจผู้ใช้/เครื่อง ทั้งสองไม่แทนการควบคุมสิทธิ์ไป service ภายใน ต่อ WLAN ได้แล้วอาจยังถูก ACL หรือ NAC จำกัด VLAN/Captive portal ก็มีผลต่อสิทธิ์หลัง association
+
+WPA2 PSK ใน WLAN GUI
+ตรวจ SSIDenabled, security เลือก WPA2-Personal ตาม lab และตั้ง key ตาม password policy ตรวจ APbroadcastSSID และ client ใช้ key ตรงกัน จากนั้นดู WLAN-to-VLANmapping และ DHCP ไม่เผย key จริงใน screenshot หรือ ticket หาก authentication ผ่านแต่ไม่มี IP ให้แก้ address path ไม่ใช่เปลี่ยน password ซ้ำ
+
+ตรวจ enterprise certificate failure
+เมื่อ 802.1X ล้มเหลวให้ดู EAPmethod, server certificate trust/name, expiry และ client time เก็บ RADIUSresult และ supplicantlog โดยไม่พิมพ์ secret หาก certificate ไม่ตรงให้แก้ trust/config ตาม policy ไม่ปิด certificatevalidation เป็นวิธีทำให้ authentication ผ่าน

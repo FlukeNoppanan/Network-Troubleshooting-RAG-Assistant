@@ -1,0 +1,21 @@
+Cisco IOS CLI Configuration Modes และ Save Rollback
+CLI modes
+User EXEC มักแสดง prompt > และ privileged EXEC # Configuration mode เข้าโดย configure terminal แล้วเลือก interface/router/line ตามงาน Prompt ช่วยดูว่าคำสั่งอยู่ใน context ใด เครื่องหมาย?ช่วยค้น syntax ตาม platform อย่าใช้คำสั่งของ switch model หนึ่งกับทุกอุปกรณ์โดยไม่ตรวจ
+
+Running กับ startup configuration
+Running-config คือค่าที่กำลังทำงาน ส่วน startup-config ใช้เมื่อ boot ตามระบบ บน Cisco IOS ทั่วไป copy running-config startup-config บันทึกค่าปัจจุบัน การ save ไม่ใช่การยืนยันว่าค่าใหม่ถูกต้อง ต้อง verify ก่อนเก็บเป็นค่า boot เพื่อไม่รักษาค่าที่ทำให้บริการเสีย
+
+อ่าน interface และ configuration
+show ip interface brief ช่วยดู address และ up/down; show interfaces ดู counter และรายละเอียด; show running-config ดูค่าที่ตั้ง บางคำสั่งอาจแสดง credentials ที่เข้ารหัสหรือข้อมูลลับ ต้องคัดเฉพาะส่วนจำเป็นและ redact ก่อนแชร์ ไม่ dumpconfiguration ทั้งหมดลงแชตสาธารณะ
+
+Administrative down กับ operational down
+Administratively down มักเกิดจาก shutdown ใน config ส่วน down/down หรือ up/down ต้องตรวจ physical/linkprotocol และ feature ที่เกี่ยวข้อง หากจะ no shutdown ต้องรู้ว่าลิงก์ต่อไปไหนและมีความเสี่ยง loop หรือไม่ การเปิด port ไม่ใช่การแก้ address/routing โดยอัตโนมัติ
+
+เปลี่ยนค่าและ rollback
+เก็บ baseline และช่องทาง management สำรองก่อนแก้ ACL, route หรือ uplink เปลี่ยนทีละอย่างพร้อมคำสั่ง rollback ที่ทดสอบแล้ว อย่า reload เพื่อแก้ทุกอาการเพราะทำให้หลักฐานหายและกระทบผู้ใช้ เมื่อ verify บริการและนโยบายถูกต้องจึง save ตาม changeprocedure
+
+Local device access control ใน lab
+บน Cisco IOS ที่รองรับ ตัวอย่าง username labadmin privilege 15 secret <LAB_SECRET> สร้าง local account และ enable secret <LAB_SECRET> ป้องกัน privileged access ค่า <LAB_SECRET> เป็น placeholder ต้องแทนด้วย credential ที่จัดการตาม policy ไม่ใช่ password ที่มีจริงในคลัง อย่าให้ privilege 15 ทุกบัญชีโดยไม่มีเหตุผลและตรวจว่า platform รองรับ syntax/hash แบบใด
+
+Verify local authentication ก่อนใช้ remote
+เมื่อใช้ local database ให้ตรวจ line login method ที่ต้องการ เช่น login local บน VTY เมื่อ design ใช้ local authentication และ transport input ssh เพื่อใช้ SSH อย่าเปลี่ยน AAA/VTY จนไม่มีทาง console สำรอง ทดสอบ session ใหม่ก่อนปิด session ผู้ดูแลเดิม และไม่พิมพ์ secret หรือ full running-config ที่มี credentials ลง ticket

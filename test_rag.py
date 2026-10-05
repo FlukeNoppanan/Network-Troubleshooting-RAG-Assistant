@@ -24,8 +24,8 @@ class RagTests(unittest.TestCase):
         cls.index, cls.embeddings = app.build_faiss_index(cls.chunks, cls.model)
 
     def test_documents_and_chunking(self):
-        self.assertGreaterEqual(len(self.docs), 18)
-        self.assertGreater(sum(len(d['text']) for d in self.docs), 35000)
+        self.assertGreaterEqual(len(self.docs), 48)
+        self.assertGreater(sum(len(d['text']) for d in self.docs), 80000)
         self.assertTrue(all(sum(c['source'] == d['source'] for c in self.chunks) > 1 for d in self.docs))
         self.assertTrue(all(0 < len(c['text']) <= app.CHUNK_SIZE for c in self.chunks))
         chunks = app.chunk_documents([{'source': 'x', 'text': 'x' * 2500}])
@@ -54,7 +54,7 @@ class RagTests(unittest.TestCase):
 
     def test_retrieval_cases(self):
         cases = pd.read_csv(app.DATA_DIR.parent / 'test_questions.csv').fillna('')
-        self.assertGreaterEqual(len(cases), 20)
+        self.assertGreaterEqual(len(cases), 59)
         self.assertGreaterEqual(sum(cases.expected_answer_type == 'NOT_FOUND'), 3)
         for row in cases.itertuples():
             with self.subTest(question=row.question):

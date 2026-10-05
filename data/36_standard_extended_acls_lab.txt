@@ -1,0 +1,15 @@
+Standard Extended และ Named IPv4 ACL Lab
+Standard กับ extended ACL
+Standard IPv4 ACL ดู sourceaddress เป็นหลัก ส่วน extended เพิ่ม destination,protocol และ ports Rule order มีผลเพราะโดยทั่วไป first match แล้วหยุดพร้อม implicit deny ท้ายรายการ วาง standard ACL โดยระวังการ blocktraffic อื่นที่ source เดียวกัน อย่าดูชื่อ ACL แทนการอ่านเงื่อนไขจริง
+
+Wildcard mask
+Wildcardmask ใน ACL ใช้ 0 หมายถึง bit ต้องตรงและ 1 หมายถึงไม่สนใจ ตัวอย่าง 192.168.10.0 0.0.0.255match/24; host192.168.10.20matchhost เดียว anymatch ทุก address Wildcard ไม่ใช่ subnetmask โดยตรงและอาจมี pattern ไม่ต่อเนื่องตาม feature ต้องตรวจเงื่อนไขที่ match จริง
+
+Named extended ACL example
+ตัวอย่าง lab: ip access-list extended WEB_ONLY แล้ว permit tcp 192.168.10.0 0.0.0.255 host 192.0.2.10 eq 443 อนุญาต HTTPS ตาม address ตัวอย่าง Rule นี้ไม่อนุญาต DNS หรือ service อื่นโดยอัตโนมัติ ออกแบบ permit ที่จำเป็นก่อน deny และไม่ใส่ allow-any เพื่อให้ test ผ่าน
+
+Apply inbound/outbound
+บน interface ใช้ ip access-group WEB_ONLY in เมื่อ design ต้องกรองขาเข้าที่จุดนั้น in/out อ้างทิศจากมุม routerinterface ไม่ใช่มุม client ตรวจ return traffic ด้วยเพราะ statelessACL ไม่มี connectionstate แบบ firewall ใช้ show access-lists และ show ip interface ดู ACL ที่ apply จริง
+
+Verify และ safe changes
+ตรวจ counter ก่อนและหลัง flow ใหม่ที่รู้ source/destination/port ถ้า rule ไม่เพิ่มให้ดู trafficpath กับ NAT จุดที่เกิดก่อน filter อย่าลบ ACL ของ management ผ่าน remote โดยไม่มี console/rollback เก็บ sequence และทดสอบทั้ง traffic ที่ควรผ่านและควรถูก block หลังแก้

@@ -1,0 +1,15 @@
+VLSM และ Route Summarization
+VLSM allocation
+Variable Length Subnet Mask ให้แต่ละ subnet ใช้ prefix ต่างกันภายใน address block เดียว จัด subnet ที่ต้องใช้ hosts มากก่อนเพื่อไม่แตก block เป็นชิ้นเล็ก ตรวจว่าทุก network เริ่มที่ boundary ของ prefix และไม่ overlap กัน วางแผน gateway, DHCP pool, reservations และช่องสำหรับเติบโตด้วย
+
+ตัวอย่างจัดสรร 192.168.40.0/24
+จำนวน hosts ในตัวอย่างนับรวม gateway และอุปกรณ์ที่ใช้ address แล้ว ต้องการ LAN 60, 30 และ 12 hosts เลือก /26 ที่มี 62 usable ให้ LAN แรกเป็น 192.168.40.0/26 จากนั้น /27 สำหรับ LAN ที่สองเป็น .64/27 และ /28 สำหรับ LAN ที่สามเป็น .96/28 Network/broadcast ของแต่ละ block ไม่ใช่ host addresses ช่วงที่เหลือยังจัดสรรเพิ่มได้โดยตรวจ boundary
+
+Route summarization ด้วย prefix ร่วม
+192.168.8.0/24, .9.0/24, .10.0/24 และ .11.0/24 สามารถรวมเป็น 192.168.8.0/22 เพราะเป็นสี่ block ที่ต่อเนื่องและเริ่มถูก boundary การสรุปไม่ได้ใช้เพียงจำนวน route ต้องตรวจ binary prefix ร่วม หาก summarize กว้างเกินจะโฆษณาพื้นที่ที่ไม่มีจริงและอาจเกิด black hole
+
+ข้อควรระวัง summary route
+ก่อนเพิ่ม aggregate route ตรวจว่าปลายทางใน summary มีเส้นทางจริงและมี return route หากบาง subnet อยู่ที่อื่นต้องมี more-specific route รองรับ การตั้ง discard route สำหรับ summary ช่วยป้องกัน loop ในบาง design แต่ทิ้ง traffic ของ subnet ที่หายได้ ต้องประเมิน topology ไม่คัดลอกค่าโดยไม่ดูเส้นทาง
+
+ยืนยัน addressing plan
+ทำตาราง network, prefix, first/last host, broadcast และการใช้งานของแต่ละ block ตรวจด้วยการคำนวณและเทียบ configuration สองฝั่ง หาก DHCP แจก address จาก block ที่ซ้อนกัน ให้แก้ scope และ addressing plan ก่อน clear lease ทั้งระบบ VLSM ที่ดีช่วยลด address waste แต่ไม่แทนการตรวจ IP conflict
