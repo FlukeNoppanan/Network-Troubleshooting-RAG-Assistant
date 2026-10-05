@@ -1,0 +1,37 @@
+[
+  {
+    "source": "05_ospf.txt",
+    "chunk_number": 1,
+    "text": "OSPF Neighbor Formation และ EXSTART/EXCHANGE Troubleshooting\nOSPF เป็น link-state routing protocol ใช้ IP protocol 89 ไม่ใช่ TCP/UDP port Router แลก Hello และข้อมูล topology เพื่อคำนวณ shortest path ภายใน area ต้องมี Layer 3 reachability และ interface ที่เปิด OSPF ก่อน Router ID ต้องไม่ซ้ำกัน OSPF cost ใช้ตัดสินเส้นทางตามค่าที่ตั้งหรือ reference bandwidth จึงต้องสอดคล้องกันในระบบเพื่อให้เลือกเส้นทางตามต้องการ\nเงื่อนไขการเกิด neighbor\nตรวจ subnet, area ID, network type, hello/dead timers, authentication และ stub-area options ให้เข้ากัน Router ที่ passive interface จะไม่ส่ง Hello เพื่อสร้าง neighbor ตรวจ packet capture ว่าเห็น Hello ทั้งขาเข้าและออกหรือไม่ ACL ต้องอนุญาต OSPF protocol 89 และ multicast ที่เกี่ยวข้องบน segment โดย Ethernet broadcast ใช้ 224.0.0.5 และ 224.0.0.6 ตามบทบาท การ ping ผ่านได้ไม่ยืนยันว่า OSPF packet ผ่าน\nDR/BDR และ neighbor states",
+    "score": 0.6437831521034241,
+    "source_id": "S1"
+  },
+  {
+    "source": "05_ospf.txt",
+    "chunk_number": 3,
+    "text": "ate เพิ่ม; Full คือ database synchronized อย่าบังคับทุก neighbor ให้ Full โดยไม่ดู network type และ role\nOSPF neighbor stuck in EXSTART หรือ EXCHANGE\nสาเหตุสำคัญคือ MTU mismatch ทำให้ Database Description negotiation ไม่สำเร็จ ตรวจ interface MTU ทั้งสองฝั่งและ packet capture ของ DBD ที่แสดง MTU เปรียบเทียบ Router ID ว่าไม่ซ้ำ ตรวจ link loss และ authentication รวมถึง filter ที่ผ่าน Hello แต่กระทบ packet ขนาดใหญ่ คำสั่งแบบ Cisco IOS ได้แก่ show ip ospf neighbor และ show ip ospf interface การใช้ mtu-ignore อาจข้ามการตรวจแต่ไม่ได้แก้ data-plane MTU จึงควรทำ MTU ให้ตรงและตรวจ path ก่อนพิจารณาทางเลือกตามคู่มือ platform\nมี Full แต่ route ไม่ปรากฏ",
+    "score": 0.5307369232177734,
+    "source_id": "S2"
+  },
+  {
+    "source": "05_ospf.txt",
+    "chunk_number": 2,
+    "text": "ยวข้องบน segment โดย Ethernet broadcast ใช้ 224.0.0.5 และ 224.0.0.6 ตามบทบาท การ ping ผ่านได้ไม่ยืนยันว่า OSPF packet ผ่าน\nDR/BDR และ neighbor states\nบน broadcast network เลือก Designated Router และ Backup Designated Router เพื่อลดจำนวน adjacency Down คือยังไม่มี Hello, Init คือได้รับ Hello แต่ยังไม่เห็น Router ID ตนเองใน neighbor list, 2-Way คือสื่อสารสองทางแล้ว ระหว่าง DROTHER สองตัวบน broadcast network อาจคง 2-Way ตามปกติ ExStart เจรจา database exchange; Exchange แลก Database Description; Loading ขอ link-state เพิ่ม; Full คือ database synchronized อย่าบังคับทุก neighbor ให้ Full โดยไม่ดู network type และ role\nOSPF neighbor stuck in EXSTART หรือ EXCHANGE",
+    "score": 0.4124988317489624,
+    "source_id": "S3"
+  },
+  {
+    "source": "01_osi_tcpip.txt",
+    "chunk_number": 1,
+    "text": "OSI และ TCP/IP: วิเคราะห์ปัญหาตามชั้นเครือข่าย\nOSI แบ่งงานเป็น 7 layers: Physical ส่งสัญญาณ; Data Link ส่ง frame ใน LAN; Network กำหนด IP และเลือกเส้นทาง; Transport สื่อสารระหว่าง process; Session จัดการ session; Presentation แปลงรูปแบบข้อมูล; Application ให้บริการแก่โปรแกรม TCP/IP รวมเป็น Link, Internet, Transport และ Application การแบ่งชั้นช่วยแยกอาการ ไม่ใช่หลักฐานว่าปัญหาต้องอยู่ชั้นเดียวเสมอ\nEncapsulation และเส้นทางข้อมูล\nเมื่อ application ส่งข้อมูล TCP จะเพิ่ม header เป็น segment หรือ UDP เป็น datagram จากนั้น IP เพิ่มที่อยู่ต้นทางและปลายทางและ Link ห่อเป็น Ethernet frame ที่มี MAC Router เปลี่ยน frame สำหรับลิงก์ถัดไปและลด TTL; IP ปลายทางปกติยังเดิมถ้าไม่มี NAT การเห็น link up จึงไม่ได้ยืนยันว่ามี route หรือบริการปลายทางทำงาน\nTCP, UDP และ ICMP",
+    "score": 0.3864068388938904,
+    "source_id": "S4"
+  },
+  {
+    "source": "08_firewall_acl.txt",
+    "chunk_number": 3,
+    "text": "SYN-ACK ออกจาก server แต่ client ไม่เห็นให้ดู return path และ filter ระหว่างทาง RST กับ timeout มีความหมายต่างกัน ต้องจับ packet เพื่อระบุผู้ส่ง RST\nการแก้ไขที่ควบคุมผลกระทบ\nอย่าปิด firewall ทั้งระบบหรือเพิ่ม allow any-any เพื่อกลบปัญหา เพิ่ม rule เฉพาะ source/destination/protocol/port ที่จำเป็นตามนโยบาย ตรวจว่ามี deny rule ก่อนหน้าหรือ object ที่ผิดและมี NAT เปลี่ยน IP แล้วหรือไม่ Existing connection state อาจคง behavior เดิมหลังเปลี่ยน policy ให้ทดสอบ flow ใหม่ หากต้องล้าง state ให้เลือก session ที่เกี่ยวข้องตามขั้นตอนอุปกรณ์ ตรวจ log หลังแก้และยืนยันว่า traffic ที่ควรถูกปฏิเสธยังไม่ผ่าน เก็บรายการเปลี่ยนแปลงและแผน rollback",
+    "score": 0.38237008452415466,
+    "source_id": "S5"
+  }
+]

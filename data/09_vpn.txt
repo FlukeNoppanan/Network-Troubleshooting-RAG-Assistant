@@ -1,0 +1,14 @@
+VPN, IPsec, IKE และ Tunnel MTU Troubleshooting
+Site-to-site VPN เชื่อม subnet สองฝั่งผ่านเครือข่ายที่ไม่เชื่อถือ ส่วน remote access VPN ให้ผู้ใช้เชื่อมจากภายนอกเข้าระบบองค์กร การมี tunnel up ไม่ยืนยันว่า traffic ภายในถูก route เข้า tunnel หรือ policy อนุญาต ต้องตรวจทั้ง control plane และ data plane
+
+IPsec และ IKE
+IKE เจรจา security association, ยืนยันตัวตน และตกลง cryptographic parameters ส่วน IPsec ใช้ SA ป้องกันข้อมูล IKEv2 ใช้ IKE SA และ CHILD SA จึงไม่ควรเรียกทุกขั้นว่า phase 1/2 แบบ IKEv1 เงื่อนไขทั้งสองฝั่งต้องเข้ากัน เช่น encryption, integrity ตาม algorithm, DH group, peer identity และ authentication อย่าลดความปลอดภัยเพื่อแก้ proposal mismatch ให้เทียบกับ policy ที่องค์กรกำหนด
+
+Ports, NAT-T และ selectors
+IKE มักใช้ UDP 500; NAT traversal ใช้ UDP 4500 และ IPsec ESP ที่ไม่ encapsulate ใช้ IP protocol 50 ตรวจ firewall ระหว่าง peer และ public reachability Tunnel ต้องมี local/remote traffic selectors หรือ routing ที่ถูกต้องตามชนิด route-based/policy-based IPsec หาก subnet ซ้ำกันสองฝั่งต้องออกแบบ addressing หรือ NAT ที่สอดคล้องกัน NAT exemption อาจจำเป็นเพื่อไม่ให้ traffic ถูกแปลงก่อนเข้า VPN
+
+VPN tunnel ไม่ผ่านข้อมูล
+หาก IKE ไม่ขึ้นให้ดู peer address, authentication, identity, proposal และ log ที่สองฝั่ง หาก SA ขึ้นแต่ ping ไม่ผ่านให้ดู route ไป remote subnet, selectors, firewall และ return route ตรวจ encrypt/decrypt counters ถ้า encrypt เพิ่มแต่ decrypt ไม่เพิ่มให้ดูปลายทางและเส้นทางกลับ หาก counter ไม่เพิ่มเลย traffic อาจไม่เข้า tunnel Remote access ต้องตรวจ IP pool, route ที่ client และ split tunnel รวมถึง DNS ภายในด้วย บันทึกผลโดยไม่เผยแพร่ pre-shared key
+
+VPN MTU/MSS: เว็บค้างหรือ packet ใหญ่ไม่ผ่าน
+IPsec เพิ่ม overhead จึงลดขนาด payload ที่เส้นทางขนได้ อาการคือ ping เล็กผ่านแต่ transfer ใหญ่ค้างหรือ TCP retransmission สูง ทดสอบ Path MTU ด้วย packet ขนาดต่างกันและ DF เช่น ping -M do -s 1372 <destination> บน Linux หรือ ping -f -l 1372 <destination> บน Windows ขนาด payload ไม่รวม IP/ICMP header และต้องปรับตามเส้นทางจริง ตรวจ ICMP Fragmentation Needed ที่ถูก block พิจารณาปรับ tunnel MTU หรือ TCP MSS clamping ตาม platform MSS แก้เฉพาะ TCP ไม่แก้ UDP ยืนยันด้วย packet capture และทดสอบบริการจริงทั้งสองทิศทาง

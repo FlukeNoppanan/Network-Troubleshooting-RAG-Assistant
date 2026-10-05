@@ -1,0 +1,19 @@
+id,question,expected_type,expected_source,top_source,top_score,expected_rank,result
+1,OSPF neighbor stuck in EXSTART or EXCHANGE what should I check?,GROUNDED,05_ospf.txt,05_ospf.txt,0.5787,1.0,PASS
+2,เครื่องต่าง VLAN ติดต่อกันไม่ได้ต้องตรวจอะไร?,GROUNDED,03_vlan_trunking.txt,03_vlan_trunking.txt,0.7556,1.0,PASS
+3,DHCP client cannot obtain an IP address how do I troubleshoot?,GROUNDED,06_dhcp_dns.txt,06_dhcp_dns.txt,0.8108,1.0,PASS
+4,DNS resolution fails but access by IP works what should I check?,GROUNDED,06_dhcp_dns.txt,06_dhcp_dns.txt,0.7763,1.0,PASS
+5,How do I troubleshoot outbound NAT translations?,GROUNDED,07_nat.txt,07_nat.txt,0.6436,1.0,PASS
+6,เกิด STP loop และ MAC flapping ต้องตรวจอะไร?,GROUNDED,04_stp_rstp.txt,04_stp_rstp.txt,0.6035,1.0,PASS
+7,VPN ส่ง packet เล็กได้แต่เว็บค้าง ต้องตรวจ MTU และ MSS อย่างไร?,GROUNDED,09_vpn.txt,09_vpn.txt,0.7933,1.0,PASS
+8,How do I troubleshoot a firewall rule blocking TCP traffic?,GROUNDED,08_firewall_acl.txt,08_firewall_acl.txt,0.7785,1.0,PASS
+9,ตั้ง subnet mask หรือ default gateway ผิดมีอาการอย่างไร?,GROUNDED,02_ip_subnetting.txt,03_vlan_trunking.txt,0.669,2.0,PASS
+10,How do I troubleshoot TCP retransmission and duplicate ACK?,GROUNDED,10_network_troubleshooting.txt,10_network_troubleshooting.txt,0.8072,1.0,PASS
+11,How do I deploy Kubernetes with Helm?,NOT_FOUND,,04_stp_rstp.txt,0.2883,,PASS
+12,How do I optimize a PostgreSQL query?,NOT_FOUND,,10_network_troubleshooting.txt,0.2802,,PASS
+13,ARP ใช้ทำอะไรเมื่อปลายทางอยู่นอก subnet?,GROUNDED,01_osi_tcpip.txt,01_osi_tcpip.txt,0.7205,1.0,PASS
+14,OSPF DROTHER neighbors stay in 2-Way is that normal?,GROUNDED,05_ospf.txt,05_ospf.txt,0.4659,1.0,PASS
+15,OSPF Neighbor ค้างอยู่ที่ EXSTART เกิดจากอะไร?,GROUNDED,05_ospf.txt,05_ospf.txt,0.6192,1.0,PASS
+16,Client ไม่ได้รับ IP Address จาก DHCP ควรตรวจสอบอะไร?,GROUNDED,06_dhcp_dns.txt,06_dhcp_dns.txt,0.8007,1.0,PASS
+17,VLAN เดียวกันแต่เครื่องสองเครื่องสื่อสารกันไม่ได้ ควรตรวจสอบอะไร?,GROUNDED,03_vlan_trunking.txt,03_vlan_trunking.txt,0.7837,1.0,PASS
+18,วิธี Deploy Kubernetes ด้วย Helm ทำยังไง?,NOT_FOUND,,04_stp_rstp.txt,0.2812,,PASS

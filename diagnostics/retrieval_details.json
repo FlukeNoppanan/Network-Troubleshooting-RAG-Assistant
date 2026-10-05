@@ -1,0 +1,55 @@
+{
+  "stats": {
+    "documents": 10,
+    "raw_characters": 22567,
+    "cleaned_characters": 22557,
+    "chunks": 63,
+    "vectors": 63,
+    "dimensions": 384,
+    "max_chunk_tokens": 128,
+    "model_token_limit": 128,
+    "query_norm": 1.0000001192092896,
+    "document_norm_min": 0.9999999403953552,
+    "document_norm_max": 1.0000001192092896,
+    "min_grounded_top_score": 0.4659,
+    "max_not_found_top_score": 0.2883,
+    "threshold": 0.38
+  },
+  "ospf_top_5": [
+    {
+      "source": "05_ospf.txt",
+      "chunk_number": 1,
+      "text": "OSPF Neighbor Formation และ EXSTART/EXCHANGE Troubleshooting\nOSPF เป็น link-state routing protocol ใช้ IP protocol 89 ไม่ใช่ TCP/UDP port Router แลก Hello และข้อมูล topology เพื่อคำนวณ shortest path ภายใน area ต้องมี Layer 3 reachability และ interface ที่เปิด OSPF ก่อน Router ID ต้องไม่ซ้ำกัน OSPF cost ใช้ตัดสินเส้นทางตามค่าที่ตั้งหรือ reference bandwidth จึงต้องสอดคล้องกันในระบบเพื่อให้เลือกเส้นทางตามต้องการ",
+      "score": 0.619182825088501,
+      "source_id": "S1"
+    },
+    {
+      "source": "05_ospf.txt",
+      "chunk_number": 4,
+      "text": "OSPF Neighbor ค้างอยู่ที่ EXSTART: MTU mismatch และ master/slave negotiation\nEXSTART เป็นขั้นเจรจา master/slave และ DBD sequence number ก่อนแลกฐานข้อมูล Router ID ที่สูงกว่าเป็น master หาก MTU ของสอง interface ไม่ตรงกัน peer อาจปฏิเสธ Database Description (DBD) ทำให้ค้าง EXSTART หรือ EXCHANGE ต้องตรวจ MTU ทั้งสองฝั่ง ไม่สรุปสาเหตุจาก state อย่างเดียว Router ID ซ้ำหรือ packet loss ก็รบกวนการแลก DBD ได้",
+      "score": 0.5650074481964111,
+      "source_id": "S2"
+    },
+    {
+      "source": "05_ospf.txt",
+      "chunk_number": 5,
+      "text": "OSPF EXSTART/EXCHANGE: วิธีตรวจสอบ\nบน Cisco IOS ใช้ show ip ospf neighbor และ show ip ospf interface เพื่อดู state, Router ID และ MTU จับ packet ตรวจ DBD, sequence number, MTU และการส่งซ้ำ ตรวจ link errors และ filter ของ IP protocol 89 ถ้า MTU mismatch ให้ปรับตามข้อกำหนดเส้นทางจริง mtu-ignore ข้ามการตรวจ DBD MTU แต่ไม่แก้ data-plane MTU จึงไม่ควรใช้เพื่อกลบสาเหตุ",
+      "score": 0.5036776065826416,
+      "source_id": "S3"
+    },
+    {
+      "source": "05_ospf.txt",
+      "chunk_number": 6,
+      "text": "แยก EXSTART ออกจากปัญหา Hello\nHello/Dead timer mismatch, area mismatch และ authentication mismatch มักทำให้ neighbor ไม่เกิดหรือไม่ก้าวถึงการแลก DBD ให้ตรวจค่าเหล่านี้เมื่อไม่มี adjacency หรือมี log บ่งชี้ แต่ไม่กล่าวว่าทุกกรณีเป็นสาเหตุเฉพาะของ EXSTART หากเห็น Hello สองทางแล้ว ให้เน้นตรวจ DBD negotiation, MTU, Router ID และ packet loss ก่อน reset neighbor เก็บหลักฐานและประเมินผลกระทบก่อนเปลี่ยนค่า",
+      "score": 0.4823454022407532,
+      "source_id": "S4"
+    },
+    {
+      "source": "05_ospf.txt",
+      "chunk_number": 2,
+      "text": "เงื่อนไขการเกิด neighbor\nตรวจ subnet, area ID, network type, hello/dead timers, authentication และ stub-area options ให้เข้ากัน Router ที่ passive interface จะไม่ส่ง Hello เพื่อสร้าง neighbor ตรวจ packet capture ว่าเห็น Hello ทั้งขาเข้าและออกหรือไม่ ACL ต้องอนุญาต OSPF protocol 89 และ multicast ที่เกี่ยวข้องบน segment โดย Ethernet broadcast ใช้ 224.0.0.5 และ 224.0.0.6 ตามบทบาท การ ping ผ่านได้ไม่ยืนยันว่า OSPF packet ผ่าน",
+      "score": 0.43415403366088867,
+      "source_id": "S5"
+    }
+  ]
+}

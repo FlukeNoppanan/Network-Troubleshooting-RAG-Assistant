@@ -1,0 +1,14 @@
+DHCP และ DNS: Client ไม่ได้รับ IP หรือแปลงชื่อไม่ได้
+DHCP จัดสรร IP, subnet mask, gateway, DNS และ lease time กระบวนการ DORA คือ Discover, Offer, Request, Acknowledge Client เริ่มค้นหา server ด้วย broadcast DHCPv4 ใช้ UDP 68 ฝั่ง client และ UDP 67 ฝั่ง server การได้รับ Offer ยังไม่ใช่หลักฐานว่า ACK และ lease เสร็จสมบูรณ์ ต้องดูทุกขั้นและค่าที่ถูกแจก
+
+DHCP relay, scope และ lease
+Router ไม่ส่ง broadcast ข้าม subnet แบบปกติ จึงใช้ DHCP relay บน interface ของ client VLAN Relay ระบุ segment ต้นทางให้ server เลือก scope ต้องมี route และ firewall เปิดทางระหว่าง relay กับ server ตรวจ scope ตรงกับ subnet, pool ยังไม่เต็ม, exclusion ไม่ครอบทั้งหมด, reservation และ option ถูกต้อง Server ต้องส่ง response กลับ relay ได้ Lease ที่หมดอายุหรือ IP ซ้ำอาจทำให้ใช้งานขัดข้องแม้เคยได้ address
+
+Troubleshooting DHCP client cannot obtain IP
+ถ้าได้ 169.254.x.x ให้ตรวจ link, VLAN และการตั้งให้รับ DHCP อัตโนมัติ บน Windows ดู ipconfig /all; ipconfig /renew ส่งคำขอใหม่เมื่อเหมาะสม อย่า release เครื่องที่ remote อยู่โดยไม่มีทางเข้าถึงสำรอง จับ packet ที่ client และ relay ถ้าไม่มี Discover ให้ดู client/network adapter ถ้ามี Discover แต่ไม่มี Offer ให้ดู path, relay, scope และ service ถ้ามี Offer แต่ไม่มี ACK ให้ดู Request, filtering และ server log เทียบกับเครื่องที่ทำงานใน VLAN เดียวกัน
+
+DNS resolution และ record
+DNS แปลง hostname เป็น address ด้วย A สำหรับ IPv4 และ AAAA สำหรับ IPv6 พร้อม record เช่น CNAME และ PTR Client ถาม resolver ตาม DNS configuration Resolver อาจตอบจาก cache หรือถามต่อ TTL กำหนดอายุ cache คำตอบ NXDOMAIN หมายถึงชื่อนั้นไม่มีตามมุมมอง DNS ที่ถาม ส่วน timeout หมายถึงยังไม่ได้รับคำตอบ จึงไม่ใช่อาการเดียวกัน DNS มักใช้ UDP 53 แต่ต้องอนุญาต TCP 53 ด้วยสำหรับ response ที่ต้องใช้ TCP
+
+Troubleshooting DNS resolution issue
+แยกการเข้าถึง IP ออกจากชื่อ: ถ้าเข้าบริการด้วย IP ได้แต่ชื่อไม่ได้ ให้ตรวจ DNS server ที่ client ใช้กับ search suffix ใช้ nslookup example.com หรือ dig example.com และระบุ resolver เพื่อเปรียบเทียบ เช่น dig @192.168.10.53 example.com ตรวจ A/AAAA/CNAME, TTL, authoritative record และ split DNS ภายใน/ภายนอก หาก lookup ถูกต้องแต่เข้าเว็บไม่ได้ ให้ตรวจ port, TLS และ application ต่อ ไม่สรุปว่า DNS เสีย การ flush cache ควรทำหลังรู้สาเหตุและเก็บผลเดิม เพราะอาจซ่อน stale record ที่ต้องแก้ที่ authoritative source

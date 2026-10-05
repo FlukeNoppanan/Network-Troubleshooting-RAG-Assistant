@@ -1,0 +1,14 @@
+Firewall และ ACL: วิเคราะห์ Rule, Port และ Protocol
+ACL เป็นรายการเงื่อนไขอนุญาตหรือปฏิเสธ packet เช่น source/destination IP, protocol และ port Stateless ACL ตรวจ packet ตามเงื่อนไขโดยไม่มี connection state ส่วน stateful firewall ติดตาม flow และอนุญาต response ตาม state ที่สร้างไว้ การที่ขาออกผ่านได้จึงไม่ได้ยืนยันว่าขากลับผ่านทุกอุปกรณ์
+
+Rule ordering และ implicit deny
+ACL หลายระบบประเมินจากบนลงล่างและใช้ first match Rule กว้างที่อยู่ก่อนอาจ shadow rule เฉพาะ โดยทั่วไปมี implicit deny ที่ท้ายรายการ แต่ behavior จริงต้องตรวจ platform และ policy zone Firewall บางระบบมีลำดับ policy และ NAT ต่างกัน ต้องรู้ว่าจุดประเมินใช้ IP ก่อนหรือหลัง NAT ดู counter และ log ของ rule ที่ match แทนการอ่าน configuration แล้วเดา
+
+Ports และ protocol ที่พบบ่อย
+HTTP ใช้ TCP 80, HTTPS มักใช้ TCP 443 แต่ HTTP/3 ใช้ QUIC บน UDP 443, SSH ใช้ TCP 22, DNS ใช้ UDP/TCP 53, DHCPv4 ใช้ UDP 67/68 ICMP ไม่มี port OSPF ใช้ IP protocol 89 และ ESP ใช้ IP protocol 50 การอนุญาต TCP อย่างเดียวไม่เปิด UDP ของบริการเดียวกัน Source port ของ client มักเป็น ephemeral port ไม่ใช่ server listening port ต้องแยก direction ของ flow
+
+Troubleshooting firewall rule blocking traffic
+บันทึก source IP, destination IP, protocol, destination port และเวลาทดสอบ ตรวจ route และ service ที่ฟังด้วย ss -lntup บน Linux หรือ netstat -ano บน Windows แล้วตรวจ ingress/egress interface, zone, ACL direction และ hit counter ถ้า TCP SYN เข้า server แต่ไม่มี SYN-ACK ให้ดู service กับ host firewall หาก SYN-ACK ออกจาก server แต่ client ไม่เห็นให้ดู return path และ filter ระหว่างทาง RST กับ timeout มีความหมายต่างกัน ต้องจับ packet เพื่อระบุผู้ส่ง RST
+
+การแก้ไขที่ควบคุมผลกระทบ
+อย่าปิด firewall ทั้งระบบหรือเพิ่ม allow any-any เพื่อกลบปัญหา เพิ่ม rule เฉพาะ source/destination/protocol/port ที่จำเป็นตามนโยบาย ตรวจว่ามี deny rule ก่อนหน้าหรือ object ที่ผิดและมี NAT เปลี่ยน IP แล้วหรือไม่ Existing connection state อาจคง behavior เดิมหลังเปลี่ยน policy ให้ทดสอบ flow ใหม่ หากต้องล้าง state ให้เลือก session ที่เกี่ยวข้องตามขั้นตอนอุปกรณ์ ตรวจ log หลังแก้และยืนยันว่า traffic ที่ควรถูกปฏิเสธยังไม่ผ่าน เก็บรายการเปลี่ยนแปลงและแผน rollback

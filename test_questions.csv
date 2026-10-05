@@ -1,0 +1,19 @@
+id,question,expected_answer_type,expected_source,notes
+1,OSPF neighbor stuck in EXSTART or EXCHANGE what should I check?,GROUNDED,05_ospf.txt,MTU and router ID
+2,เครื่องต่าง VLAN ติดต่อกันไม่ได้ต้องตรวจอะไร?,GROUNDED,03_vlan_trunking.txt,Trunk and inter-VLAN routing
+3,DHCP client cannot obtain an IP address how do I troubleshoot?,GROUNDED,06_dhcp_dns.txt,DORA relay scope
+4,DNS resolution fails but access by IP works what should I check?,GROUNDED,06_dhcp_dns.txt,Resolver and records
+5,How do I troubleshoot outbound NAT translations?,GROUNDED,07_nat.txt,Rules counters return path
+6,เกิด STP loop และ MAC flapping ต้องตรวจอะไร?,GROUNDED,04_stp_rstp.txt,BPDU and root
+7,VPN ส่ง packet เล็กได้แต่เว็บค้าง ต้องตรวจ MTU และ MSS อย่างไร?,GROUNDED,09_vpn.txt,PMTUD and overhead
+8,How do I troubleshoot a firewall rule blocking TCP traffic?,GROUNDED,08_firewall_acl.txt,Rule order and capture
+9,ตั้ง subnet mask หรือ default gateway ผิดมีอาการอย่างไร?,GROUNDED,02_ip_subnetting.txt,ARP and route
+10,How do I troubleshoot TCP retransmission and duplicate ACK?,GROUNDED,10_network_troubleshooting.txt,Loss versus capture artifacts
+11,How do I deploy Kubernetes with Helm?,NOT_FOUND,,Outside knowledge base
+12,How do I optimize a PostgreSQL query?,NOT_FOUND,,Outside knowledge base
+13,ARP ใช้ทำอะไรเมื่อปลายทางอยู่นอก subnet?,GROUNDED,01_osi_tcpip.txt,Next-hop MAC
+14,OSPF DROTHER neighbors stay in 2-Way is that normal?,GROUNDED,05_ospf.txt,DR BDR behavior
+15,OSPF Neighbor ค้างอยู่ที่ EXSTART เกิดจากอะไร?,GROUNDED,05_ospf.txt,Exact reported regression
+16,Client ไม่ได้รับ IP Address จาก DHCP ควรตรวจสอบอะไร?,GROUNDED,06_dhcp_dns.txt,Exact DHCP regression
+17,VLAN เดียวกันแต่เครื่องสองเครื่องสื่อสารกันไม่ได้ ควรตรวจสอบอะไร?,GROUNDED,03_vlan_trunking.txt,Same VLAN regression
+18,วิธี Deploy Kubernetes ด้วย Helm ทำยังไง?,NOT_FOUND,,Thai out-of-domain regression

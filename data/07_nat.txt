@@ -1,0 +1,14 @@
+NAT, PAT, SNAT และ DNAT Troubleshooting
+Network Address Translation เปลี่ยน IP address ระหว่างเครือข่าย โดยมักแปลง private address เมื่อออก Internet NAT ไม่ได้เป็นการเข้ารหัสและไม่แทน firewall การแปลงสำเร็จต้องมี routing ทั้งขาไปและกลับรวมถึง policy ที่อนุญาต traffic จึงไม่ควรดู NAT configuration อย่างเดียวเมื่อ Internet ใช้ไม่ได้
+
+ชนิดของ NAT
+Static NAT จับคู่ address แบบคงที่หนึ่งต่อหนึ่ง Dynamic NAT เลือก public address จาก pool ซึ่งอาจหมดเมื่อมี session มาก PAT หรือ overload ให้หลาย internal hosts ใช้ public IP ร่วมกันโดยแยก source port SNAT เปลี่ยน source address ส่วน DNAT เปลี่ยน destination address เช่นเผยแพร่บริการภายในผ่าน port forwarding ชื่อและลำดับ processing แตกต่างตาม platform ต้องดู packet flow ของอุปกรณ์นั้น
+
+Outbound NAT และ return path
+เมื่อ client ส่งออก gateway จะสร้าง translation entry ให้ reply กลับมาตรงกับ session ตรวจว่า rule match source subnet และ egress interface ถูกต้อง Public IP ต้อง routable และ upstream ต้องมี route ที่เหมาะสม หาก asymmetric routing ทำให้ reply ไม่ผ่านอุปกรณ์ที่ถือ state อาจทำให้ connection ล้มเหลว NAT timeout ที่สั้นกว่าช่วง idle ของ application อาจทำให้ session หลุดหลังใช้งานไปสักพัก
+
+Inbound DNAT และ port forwarding
+การ map public-IP:port ไป private-IP:port ต้องมี server ที่ฟัง port จริง, firewall อนุญาต, route ถึง server และ server มี gateway กลับผ่าน NAT box ทดสอบจากภายนอกเครือข่ายเพื่อแยกปัญหา hairpin NAT การทดสอบ public address จาก LAN อาจต้องมี NAT reflection ตาม platform อย่าเปิดทุก port เพื่อทดสอบ เลือก protocol และ port ของบริการที่ต้องการและบันทึก rule ที่แก้
+
+Troubleshooting NAT connectivity
+ตรวจ client IP/mask/gateway แล้วดู route ไป Internet, rule order, rule counters และ translation table คำสั่งแบบ Cisco IOS เช่น show ip nat translations และ show ip nat statistics แต่ไม่ใช้กับ firewall ทุกยี่ห้อ หากไม่มี translation ให้ตรวจว่า traffic มาถึงและ rule match ถ้ามี translation แต่ไม่มี reply ให้จับ packet บน inside/outside และตรวจ upstream/firewall หาก pool หรือ port exhaustion ให้ดูจำนวน session และ log ก่อนขยายทรัพยากร ทดสอบด้วย flow ใหม่เพราะ existing state อาจใช้ rule เดิม หลีกเลี่ยง clear translation ทั้งระบบโดยไม่ประเมิน session ที่กำลังใช้งาน

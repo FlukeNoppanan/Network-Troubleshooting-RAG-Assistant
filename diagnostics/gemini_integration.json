@@ -1,0 +1,12 @@
+{
+  "question": "OSPF Neighbor ค้างอยู่ที่ EXSTART เกิดจากอะไร?",
+  "passed": true,
+  "answer": "สาเหตุที่ OSPF Neighbor ค้างอยู่ที่สถานะ EXSTART เกิดจากการล้มเหลวในขั้นตอนการเจรจา master/slave และการแลกเปลี่ยน Database Description (DBD) sequence number โดยมีสาเหตุหลักได้แก่: 1. MTU mismatch ของ interface ทั้งสองฝั่ง ซึ่งทำให้ peer ปฏิเสธ DBD 2. Router ID ซ้ำกัน 3. ปัญหา packet loss ที่รบกวนการแลกเปลี่ยน DBD\n\n[S2]",
+  "sources": [
+    {
+      "source": "05_ospf.txt",
+      "chunk": 4,
+      "source_id": "S2"
+    }
+  ]
+}

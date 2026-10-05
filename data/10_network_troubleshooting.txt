@@ -1,0 +1,17 @@
+Network Troubleshooting Methodology และ Packet Capture
+เริ่มจากระบุอาการ: ใครได้รับผลกระทบ, เริ่มเมื่อไร, ทุกปลายทางหรือเฉพาะบริการ, เป็นต่อเนื่องหรือเป็นช่วง และมี change อะไรก่อนเกิด บันทึก source/destination IP, port, VLAN และเวลาทดสอบ สร้างสมมติฐานที่ตรวจได้หนึ่งข้อ ทดสอบ เก็บผล แล้วเปลี่ยนทีละอย่าง เปรียบเทียบกับเครื่องที่ใช้งานได้และเตรียม rollback ไม่แก้หลายค่าพร้อมกันจนไม่รู้ว่าค่าใดเป็นสาเหตุ
+
+เครื่องมือพื้นฐานและข้อจำกัด
+ping ตรวจ ICMP reachability แต่ไม่ยืนยัน application availability และ timeout อาจเกิดจาก ICMP filtering traceroute บน Linux หรือ tracert บน Windows ใช้ TTL เพื่อดูเส้นทาง hop บางตัวไม่ตอบและเส้นทางขากลับอาจต่างกัน nslookup/dig ใช้ดู DNS ipconfig /all หรือ ip addr ใช้ดู interface addressing arp -a หรือ ip neigh ดู neighbor cache route print หรือ ip route ดู routing table ss -lntup หรือ netstat -ano ดู listening sockets และ process
+
+Packet capture และ TCP handshake
+จับ traffic เฉพาะ interface และ flow ที่มีปัญหา ระวังข้อมูลส่วนบุคคลใน payload และเก็บตามสิทธิ์ที่มี ตัวอย่าง tcpdump -ni eth0 host 192.168.10.20 เป็นการตรวจ host บน interface ตัวอย่าง ไม่ใช่ interface ที่มีจริงทุกเครื่อง Wireshark display filter tcp.analysis.retransmission ช่วยหา retransmission แต่ผลวิเคราะห์อาจคลาดเคลื่อนเมื่อ capture drop หรือเห็น traffic แค่ทิศเดียว ควรตรวจ capture statistics และ sequence number ด้วย
+
+TCP retransmission และ duplicate ACK troubleshooting
+TCP ส่ง segment ซ้ำเมื่อไม่ได้รับ ACK ตามเวลา หรือมีสัญญาณ loss จาก duplicate ACK หลายครั้ง Duplicate ACK อาจเกี่ยวกับ packet หายหรือ out-of-order ไม่ใช่หลักฐานแน่นอนว่าสายเสีย เปรียบเทียบ capture ที่ client/server, interface errors, congestion, latency และ firewall state ตรวจว่ามี packet loss จริงหรือจุด capture เองตก packet ถ้าพบ zero window ให้ตรวจ receiver/application ที่อ่านข้อมูลช้า แยกจาก network congestion ก่อนปรับ TCP parameters
+
+MTU, Path MTU Discovery และ ICMP
+MTU คือขนาด IP packet สูงสุดที่ลิงก์รองรับ IPv4 Path MTU Discovery ใช้ DF และ ICMP Destination Unreachable type 3 code 4 Fragmentation Needed เมื่อ packet ใหญ่เกินและห้าม fragment หาก ICMP นี้ถูก block เกิด PMTU black hole ที่ส่ง packet เล็กได้แต่ packet ใหญ่ค้าง ทดสอบ ping แบบ DF โดยค่อยลด payload, ตรวจ route/tunnel overhead และอนุญาต ICMP ที่จำเป็นตาม policy IPv6 ใช้ ICMPv6 Packet Too Big และ router ไม่ fragment packet ให้ host TCP MSS clamping เป็นทางเลือกเฉพาะ TCP ไม่ใช่การแก้ MTU ทุก protocol
+
+ยืนยันหลังแก้ไข
+ทำซ้ำ test case เดิมทั้งสองทิศทาง ตรวจ latency/loss และ application transaction จริง เฝ้าดู error counter/log ในช่วงเหมาะสม แล้วบันทึก root cause ที่มีหลักฐาน, configuration ที่เปลี่ยนและผลตรวจ หากข้อมูลยังไม่พอให้ระบุสิ่งที่ต้องเก็บเพิ่มแทนการฟันธงจาก ping ครั้งเดียว

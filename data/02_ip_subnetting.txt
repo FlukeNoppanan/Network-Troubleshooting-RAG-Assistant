@@ -1,0 +1,14 @@
+IPv4, Subnet Mask และ Default Gateway
+IPv4 มี 32 bits แสดงเป็น octet 4 ชุด เช่น 192.168.10.20 CIDR /24 หมายถึง network prefix 24 bits เทียบกับ mask 255.255.255.0 ที่อยู่ network คือ bitwise AND ของ IP กับ mask สำหรับ 192.168.10.20/24 network คือ 192.168.10.0 และ broadcast คือ 192.168.10.255 ช่วง host ปกติคือ .1 ถึง .254 การคำนวณ 2^(32-prefix)-2 ใช้กับ subnet ทั่วไป แต่ /31 point-to-point และ /32 host route เป็นข้อยกเว้น
+
+ตัวอย่าง subnet และ route
+192.168.10.130/26 อยู่ใน network 192.168.10.128/26 broadcast .191 host .129 ถึง .190 เครื่อง .130/26 และ .70/26 อยู่คนละ subnet แม้สาม octet แรกตรงกัน ต้องผ่าน router การเลือกเส้นทางใช้ longest prefix match ก่อน default route 0.0.0.0/0 ถ้ามี host route หรือ VPN route ที่เฉพาะกว่าอาจเบี่ยง traffic ไปคนละ interface ตรวจ route ทุกครั้งก่อนสรุปว่า default gateway ผิด
+
+Default gateway ทำงานอย่างไร
+เครื่องส่ง packet ไปปลายทางนอก subnet โดยใช้ MAC ของ gateway เป็น destination MAC แต่ destination IP ยังเป็น IP ปลายทาง Gateway บน Ethernet LAN ปกติต้องเข้าถึงได้ใน subnet ของ interface ถ้าตั้ง gateway เป็น address คนละ segment จะ ARP ไม่สำเร็จ ตรวจ ipconfig /all บน Windows หรือ ip addr และ ip route บน Linux เทียบกับแผน addressing อย่าเปลี่ยนค่าเพียงเพราะ ping Internet ไม่ได้ เพราะ ICMP อาจถูก block
+
+อาการ mask ผิดและ IP ซ้ำ
+Mask กว้างเกินไปทำให้เครื่องคิดว่าปลายทางไกลเป็น on-link แล้วส่ง ARP แทน router Mask แคบเกินไปทำให้ส่งผ่าน gateway แม้อยู่ LAN เดียวกัน IP ซ้ำอาจทำให้ connection หลุดเป็นระยะหรือ MAC ใน ARP เปลี่ยน เก็บ ARP และ DHCP lease พร้อมเวลาที่เกิดปัญหา เปรียบเทียบ MAC ของผู้ถือ IP ใช้ IP ที่ได้รับจัดสรรเท่านั้น ไม่สุ่มเลือก static IP ภายใน DHCP pool
+
+แนวทางแก้ปัญหา subnet/default gateway
+ตรวจ link และ VLAN ก่อน แล้วบันทึก IP/mask/gateway/DNS ทดสอบ ping loopback, IP ตนเอง, gateway และปลายทางตามลำดับ ถ้า gateway ตอบแต่ปลายทางไม่ตอบ ให้ดู routing และ return path ถ้า IP ปลายทางใช้ได้แต่ hostname ไม่ได้ให้ตรวจ DNS แยกจาก routing เครื่องที่ได้รับ 169.254.x.x มักไม่มี DHCP lease สำเร็จ ไม่ควรแก้ด้วยการใส่ IP ที่เดาเอง ตรวจ DHCP และ relay ตามเอกสาร DHCP/DNS และยืนยัน route กลับมายัง subnet ต้นทาง

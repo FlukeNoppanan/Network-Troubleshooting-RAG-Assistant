@@ -1,0 +1,14 @@
+VLAN และ 802.1Q Trunk Troubleshooting
+VLAN แยก broadcast domain ทาง Layer 2 เครื่องที่อยู่ VLAN คนละหมายเลขไม่สื่อสารด้วย switching อย่างเดียว ต้องมี inter-VLAN routing ผ่าน router หรือ Layer 3 switch Access port รับส่ง traffic ของ VLAN เดียวสำหรับเครื่องปลายทาง ส่วน trunk ขนหลาย VLAN โดยใช้ IEEE 802.1Q tag ต้องตรวจทั้งฝั่ง local และ peer ไม่ดูเฉพาะฝั่งที่เกิดอาการ
+
+Access port และ membership
+ถ้าเครื่องสองเครื่องที่ควรอยู่ VLAN เดียวกัน ping ไม่ได้ ให้ตรวจ port ที่เสียบจริง, access VLAN, VLAN มีอยู่และ active, MAC address learning และ STP state คำสั่งแบบ Cisco IOS ที่ใช้ดูข้อมูล เช่น show vlan brief และ show interfaces switchport; ชื่อคำสั่งบนอุปกรณ์อื่นอาจต่างกัน อย่าคัดลอก configuration โดยไม่ตรวจ platform หาก port ต่อโทรศัพท์ IP อาจมี voice VLAN แยกจาก data VLAN จึงต้องตรวจทั้งสองเส้นทาง
+
+Trunk, native VLAN และ allowed VLAN
+บน 802.1Q trunk tagged frame บอก VLAN ID ส่วน untagged frame โดยทั่วไปถูกจัดเข้า native VLAN ถ้า native VLAN คนละค่าที่สองฝั่ง อาจส่ง untagged traffic ไปผิด VLAN และเกิด warning ตรวจ show interfaces trunk เพื่อดู trunk ที่ทำงาน, native VLAN และรายการ allowed VLAN VLAN ที่มีอยู่แต่ไม่อยู่ allowed list จะไม่ผ่าน trunk ต้องตรวจทุก hop รวมทั้ง VLAN ที่ถูก prune หรือไม่ forwarding โดย STP การเห็น trunk up ไม่ยืนยันว่าทุก VLAN ผ่านได้
+
+Inter-VLAN routing
+SVI หรือ subinterface ต้องมี IP/mask ที่เป็น gateway ของแต่ละ VLAN และอยู่สถานะ up มี route ระหว่าง subnet รวมถึง route กลับ ถ้าเครื่องใน VLAN เดียวกันคุยได้แต่ข้าม VLAN ไม่ได้ ให้ ping gateway ของตนก่อน ตรวจ gateway ที่ client, SVI state, routing enabled และ ACL ระหว่าง VLAN Router-on-a-stick ต้องมี 802.1Q encapsulation ที่ subinterface ตรงกับ VLAN และ trunk ที่สวิตช์ส่ง VLAN นั้น
+
+ตัวอย่างการวิเคราะห์ VLAN communication problem
+เครื่อง A ใน VLAN 10 เข้าถึง B ใน VLAN 20 ไม่ได้ ให้ยืนยัน address ของทั้งสองและ VLAN ของ access port หาก A ping gateway ไม่ได้ให้แก้ L2/ARP ก่อน หากทั้งสอง ping gateway ได้ให้ดู route และ firewall/ACL หากเสียเฉพาะสวิตช์ปลายทางหนึ่งตัวให้เปรียบเทียบ allowed VLAN บน uplink กับสวิตช์ที่ใช้ได้ บันทึก configuration เดิม ปรับเฉพาะ VLAN ที่ขาดและทดสอบทั้ง VLAN ที่แก้กับ VLAN อื่น เพื่อไม่ตัดบริการที่ใช้งานอยู่

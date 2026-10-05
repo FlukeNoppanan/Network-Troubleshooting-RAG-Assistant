@@ -1,0 +1,14 @@
+STP และ RSTP: ป้องกัน Switching Loop
+Ethernet frame ไม่มี TTL แบบ IP เมื่อมีวงจร Layer 2 ที่ forwarding ทุกทาง broadcast สามารถวนซ้ำ เกิด broadcast storm, MAC flapping, CPU สูง และ packet loss STP สร้าง topology ที่ไม่มี loop โดยให้บาง port ไม่ forwarding อย่าปิด STP เพียงเพื่อให้ port กลับมารับส่ง เพราะอาจทำให้ทั้ง LAN ล่ม
+
+Root bridge และ BPDU
+Switch แลก Bridge Protocol Data Unit หรือ BPDU เพื่อเลือก root bridge จาก Bridge ID ที่ต่ำสุด ประกอบด้วย priority และ MAC address แต่ละ non-root switch เลือก root port ที่มีเส้นทางต้นทุนต่ำสุดไป root ส่วน designated port ของแต่ละ segment เป็น port ที่มีเส้นทางดีที่สุด การตั้ง priority ให้เหมาะกับ topology ทำให้ root อยู่ในตำแหน่งที่ต้องการ ต้องตรวจ root จริงแทนการคาดเดาจากชื่อ switch
+
+Port roles และ states
+STP แบบเดิมมี blocking, listening, learning, forwarding และ disabled ระหว่าง convergence จะมีช่วงที่ไม่ส่ง user traffic RSTP มี discarding, learning และ forwarding พร้อม roles เช่น root, designated, alternate และ backup ทำ convergence เร็วขึ้นบนลิงก์ที่รองรับ แต่ความเร็วขึ้นกับ topology, edge port และชนิด peer Alternate port ที่ discarding อาจเป็นพฤติกรรมปกติของเส้นทางสำรอง ไม่ใช่ port เสีย
+
+PortFast และ BPDU Guard
+PortFast หรือ edge port เหมาะกับ host port เพื่อเข้าสู่ forwarding เร็ว ไม่ควรใช้โดยไม่ตรวจบนลิงก์ต่อ switch BPDU Guard ช่วยป้องกัน host port ที่ได้รับ BPDU อาจทำให้ port เป็น err-disabled เมื่อมี switch ต่อผิดตำแหน่ง หากพบ port shutdown ด้วย BPDU Guard ให้ตรวจอุปกรณ์ปลายทางและสาเหตุก่อนเปิดใหม่ ไม่ปิด guard เพื่อกลบอาการ คำสั่งตรวจแบบ Cisco IOS เช่น show spanning-tree และ show interfaces status
+
+Troubleshooting STP loop
+เมื่อ network ช้าพร้อม MAC flapping และ broadcast สูง ให้เก็บ log, interface counters, topology changes และ root bridge ตรวจลิงก์ที่เพิ่มล่าสุดหรือสายที่เสียบเป็นวง ใช้ maintenance procedure แยกลิงก์ต้องสงสัยอย่างระมัดระวังเพื่อหยุด loop แล้วตรวจ STP ของทุก VLAN VLAN บางตัวอาจมี topology ต่างกัน ให้ดูว่ามี BPDU filtering, STP disabled หรือ link แบบ unidirectional หรือไม่ หลังแก้ตรวจว่า root คงที่, port role ถูกต้อง, storm ลดลง และเส้นทางสำรองยังทำงานเมื่อ failover ภายใต้เวลาทดสอบที่ได้รับอนุญาต

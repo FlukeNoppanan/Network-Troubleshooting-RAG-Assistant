@@ -1,0 +1,14 @@
+OSI และ TCP/IP: วิเคราะห์ปัญหาตามชั้นเครือข่าย
+OSI แบ่งงานเป็น 7 layers: Physical ส่งสัญญาณ; Data Link ส่ง frame ใน LAN; Network กำหนด IP และเลือกเส้นทาง; Transport สื่อสารระหว่าง process; Session จัดการ session; Presentation แปลงรูปแบบข้อมูล; Application ให้บริการแก่โปรแกรม TCP/IP รวมเป็น Link, Internet, Transport และ Application การแบ่งชั้นช่วยแยกอาการ ไม่ใช่หลักฐานว่าปัญหาต้องอยู่ชั้นเดียวเสมอ
+
+Encapsulation และเส้นทางข้อมูล
+เมื่อ application ส่งข้อมูล TCP จะเพิ่ม header เป็น segment หรือ UDP เป็น datagram จากนั้น IP เพิ่มที่อยู่ต้นทางและปลายทางและ Link ห่อเป็น Ethernet frame ที่มี MAC Router เปลี่ยน frame สำหรับลิงก์ถัดไปและลด TTL; IP ปลายทางปกติยังเดิมถ้าไม่มี NAT การเห็น link up จึงไม่ได้ยืนยันว่ามี route หรือบริการปลายทางทำงาน
+
+TCP, UDP และ ICMP
+TCP มี three-way handshake SYN, SYN-ACK, ACK และ sequence number เพื่อจัดลำดับและส่งข้อมูลซ้ำเมื่อสูญหาย การไม่ได้รับ SYN-ACK อาจเกิดจาก filtering, route หรือ server ไม่ตอบ ส่วน RST บอกว่ามีการปฏิเสธ connection แต่ต้องระบุว่าผู้ส่งคือใคร UDP ไม่มี handshake และไม่รับประกันการส่งถึง DNS มักใช้ UDP 53 และอาจใช้ TCP 53 เมื่อ response ใหญ่ ICMP ส่งข้อความควบคุม เช่น Echo Request/Reply, Destination Unreachable และ Time Exceeded ไม่ใช่ TCP port
+
+ARP ใน IPv4 LAN
+ARP แปลง IPv4 ของ next hop เป็น MAC ภายใน broadcast domain ถ้าปลายทางอยู่ subnet เดียวกันเครื่องจะ ARP หาเครื่องนั้น ถ้าอยู่นอก subnet จะ ARP หา default gateway การตั้ง mask ผิดอาจทำให้ ARP หาปลายทางที่อยู่ไกลและไม่สำเร็จ ตรวจ arp -a หรือ ip neigh และดูสถานะ incomplete การไม่มี ARP reply อาจเกิดจาก VLAN ผิด, interface down หรือ gateway ไม่อยู่บน segment นี้ การมี ARP entry ไม่ยืนยันว่าบริการ application ใช้งานได้
+
+ลำดับตรวจตาม layer
+เริ่ม Physical: สาย, link LED, error counter, speed และ duplex จากนั้น Data Link: MAC learning, VLAN, trunk และ STP ต่อด้วย Network: IP, mask, gateway, route และ ping สุดท้าย Transport/Application: port ที่ฟังอยู่, firewall, DNS และ service log เปรียบเทียบเครื่องที่ใช้ได้กับใช้ไม่ได้ใน VLAN เดียวกัน ใช้ packet capture ที่ทั้งสองปลายเมื่อผล ping กับการเปิดบริการไม่สอดคล้องกัน เก็บหลักฐานก่อนเปลี่ยนค่าและทดสอบอาการเดิมหลังแก้ไข
